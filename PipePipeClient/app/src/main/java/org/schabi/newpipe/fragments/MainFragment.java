@@ -128,7 +128,8 @@ public class MainFragment extends BaseFragment
 
     /** PipeTV: shows the given tab, as the side rail asks on TVs. */
     public void selectTab(final int position) {
-        if (binding != null && position >= 0 && position < tabsList.size()) {
+        if (binding != null && pagerAdapter != null
+                && position >= 0 && position < pagerAdapter.getCount()) {
             binding.pager.setCurrentItem(position, false);
             updateTitleForTab(position);
         }
@@ -209,7 +210,7 @@ public class MainFragment extends BaseFragment
 
         if (pagerAdapter == null || !pagerAdapter.sameTabs(tabsList)) {
             pagerAdapter = new SelectedTabsPagerAdapter(requireContext(),
-                    getChildFragmentManager(), tabsList);
+                    getChildFragmentManager(), tabsList, tvHome());
         }
 
         binding.pager.setAdapter(null);
@@ -223,8 +224,9 @@ public class MainFragment extends BaseFragment
     }
 
     private void updateTabsIconAndDescription() {
+        final int offset = tvHome() ? 1 : 0;
         for (int i = 0; i < tabsList.size(); i++) {
-            final TabLayout.Tab tabToSet = binding.mainTabLayout.getTabAt(i);
+            final TabLayout.Tab tabToSet = binding.mainTabLayout.getTabAt(i + offset);
             if (tabToSet != null) {
                 final Tab tab = tabsList.get(i);
                 tabToSet.setIcon(tab.getTabIconRes(requireContext()));
@@ -234,7 +236,20 @@ public class MainFragment extends BaseFragment
     }
 
     private void updateTitleForTab(final int tabPosition) {
+        if (tvHome()) {
+            setTitle(tabPosition == 0 ? getString(R.string.pipetv_home)
+                    : tabsList.get(tabPosition - 1).getTabName(requireContext()));
+            return;
+        }
         setTitle(tabsList.get(tabPosition).getTabName(requireContext()));
+    }
+
+    /**
+     * PipeTV: on TVs the pager starts with the home of rows (TvHomeFragment), before the tabs
+     * chosen in the settings.
+     */
+    private boolean tvHome() {
+        return DeviceUtils.isTv(requireContext());
     }
 
     private void updateTabLayoutPosition() {
@@ -318,19 +333,26 @@ public class MainFragment extends BaseFragment
             extends FragmentStatePagerAdapterMenuWorkaround {
         private final Context context;
         private final List<Tab> internalTabsList;
+        // PipeTV: the TV home comes first, before the tabs
+        private final boolean withHome;
 
         private SelectedTabsPagerAdapter(final Context context,
                                          final FragmentManager fragmentManager,
-                                         final List<Tab> tabsList) {
+                                         final List<Tab> tabsList,
+                                         final boolean withHome) {
             super(fragmentManager, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT);
             this.context = context;
             this.internalTabsList = new ArrayList<>(tabsList);
+            this.withHome = withHome;
         }
 
         @NonNull
         @Override
         public Fragment getItem(final int position) {
-            final Tab tab = internalTabsList.get(position);
+            if (withHome && position == 0) {
+                return new TvHomeFragment();
+            }
+            final Tab tab = internalTabsList.get(withHome ? position - 1 : position);
 
             final Fragment fragment;
             try {
@@ -356,7 +378,7 @@ public class MainFragment extends BaseFragment
 
         @Override
         public int getCount() {
-            return internalTabsList.size();
+            return internalTabsList.size() + (withHome ? 1 : 0);
         }
 
         public boolean sameTabs(final List<Tab> tabsToCompare) {

@@ -56,6 +56,16 @@ PipePipe's GPLv3 license.
 - A softer focus: a white outline with a faint glow that glides from one item
   to the next, and a subtler highlight inside the cards.
 
+**Fifth round (2026-10):**
+
+- A home of rows, first in the side rail (`TvHomeFragment`): recently
+  watched, more like the last of them, the live videos and what's new from
+  the subscriptions. Each row loads on its own, and the focused row comes up
+  to the top of the screen.
+- The focused card grows a little and rises above its neighbors.
+- Search: once the on-screen keyboard is closed (Back), Down goes from the
+  search box to the suggestions, or to the results.
+
 Measured on a Mi TV Stick (1 GB, Android 9):
 
 | | debug | R8 before | R8 now | R8 now, fully compiled |

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- PipeTV's own strings, apart from upstream's so their translations merge cleanly. -->
+<resources>
+    <string name="pipetv_home">Home</string>
+    <string name="pipetv_recently_watched">Recently watched</string>
+    <string name="pipetv_more_like">More like %1$s</string>
+</resources>

@@ -256,9 +256,12 @@ public class MainActivity extends AppCompatActivity {
         final List<TvNavRail.Item> top = new ArrayList<>();
         top.add(new TvNavRail.Item(RAIL_SEARCH, R.drawable.ic_search,
                 getString(R.string.search)));
+        // The main pager's pages: the home of rows, then the tabs chosen in the settings
+        top.add(new TvNavRail.Item(RAIL_TAB + 0, R.drawable.ic_home,
+                getString(R.string.pipetv_home)));
         final List<Tab> tabs = TabsManager.getManager(this).getTabs();
         for (int i = 0; i < tabs.size(); i++) {
-            top.add(new TvNavRail.Item(RAIL_TAB + i, tabs.get(i).getTabIconRes(this),
+            top.add(new TvNavRail.Item(RAIL_TAB + (i + 1), tabs.get(i).getTabIconRes(this),
                     tabs.get(i).getTabName(this)));
         }
         top.add(new TvNavRail.Item(RAIL_HISTORY, R.drawable.ic_history,

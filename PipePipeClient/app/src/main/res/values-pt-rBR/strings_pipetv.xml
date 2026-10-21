@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="pipetv_home">Início</string>
+    <string name="pipetv_recently_watched">Assistidos recentemente</string>
+    <string name="pipetv_more_like">Mais como %1$s</string>
+</resources>

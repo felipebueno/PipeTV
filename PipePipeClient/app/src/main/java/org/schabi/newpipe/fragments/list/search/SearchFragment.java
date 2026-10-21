@@ -68,6 +68,7 @@ import org.schabi.newpipe.local.history.HistoryRecordManager;
 import org.schabi.newpipe.settings.NewPipeSettings;
 import org.schabi.newpipe.util.Constants;
 import org.schabi.newpipe.util.DeviceUtils;
+import org.schabi.newpipe.views.NewPipeEditText;
 import org.schabi.newpipe.util.ExtractorHelper;
 import org.schabi.newpipe.util.KeyboardUtil;
 import org.schabi.newpipe.util.NavigationHelper;
@@ -720,6 +721,10 @@ public class SearchFragment extends BaseListFragment<SearchInfo, ListExtractor.I
             }
         });
 
+        if (searchEditText instanceof NewPipeEditText && DeviceUtils.isTv(getContext())) {
+            ((NewPipeEditText) searchEditText).setOnDownListener(this::focusListBelowSearch);
+        }
+
         searchEditText.setOnFocusChangeListener((View v, boolean hasFocus) -> {
             if (DEBUG) {
                 Log.d(TAG, "onFocusChange() called with: "
@@ -812,6 +817,9 @@ public class SearchFragment extends BaseListFragment<SearchInfo, ListExtractor.I
         searchSubmit.setOnClickListener(null);
         searchEditText.setOnClickListener(null);
         searchEditText.setOnFocusChangeListener(null);
+        if (searchEditText instanceof NewPipeEditText) {
+            ((NewPipeEditText) searchEditText).setOnDownListener(null);
+        }
         searchEditText.setOnEditorActionListener(null);
 
         if (textWatcher != null) {
@@ -843,6 +851,9 @@ public class SearchFragment extends BaseListFragment<SearchInfo, ListExtractor.I
             Log.d(TAG, "showKeyboardSearch() called");
         }
         KeyboardUtil.showKeyboard(activity, searchEditText);
+        if (searchEditText instanceof NewPipeEditText) {
+            ((NewPipeEditText) searchEditText).setKeyboardShown(true);
+        }
     }
 
     private void hideKeyboardSearch() {
@@ -851,6 +862,27 @@ public class SearchFragment extends BaseListFragment<SearchInfo, ListExtractor.I
         }
 
         KeyboardUtil.hideKeyboard(activity, searchEditText);
+        if (searchEditText instanceof NewPipeEditText) {
+            ((NewPipeEditText) searchEditText).setKeyboardShown(false);
+        }
+    }
+
+    /**
+     * PipeTV: Down from the search box goes to the suggestions, or to the results when there
+     * are none, on TVs.
+     */
+    private boolean focusListBelowSearch() {
+        if (suggestionsPanelVisible && focusFirstItem(searchBinding.suggestionsList)) {
+            return true;
+        }
+        if (suggestionsPanelVisible && itemsList != null && itemsList.getChildCount() > 0) {
+            hideSuggestionsPanel(); // it covers the results
+        }
+        return focusFirstItem(itemsList);
+    }
+
+    private static boolean focusFirstItem(@Nullable final RecyclerView list) {
+        return list != null && list.getChildCount() > 0 && list.getChildAt(0).requestFocus();
     }
 
     private void showDeleteSuggestionDialog(final SuggestionItem item) {

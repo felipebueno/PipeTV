@@ -46,6 +46,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.view.WindowCallbackWrapper;
 import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.RecyclerView;
 
 import org.schabi.newpipe.R;
 import org.schabi.newpipe.util.ThemeHelper;
@@ -90,6 +91,12 @@ public final class FocusOverlayView extends Drawable implements
     private final float ringGap;
     private final float ringRadius;
     private final float glowWidth;
+    private static final float LIFT_SCALE = 1.04f;
+    private static final long LIFT_MS = 160;
+    private final float liftZ;
+    private final DecelerateInterpolator liftInterpolator = new DecelerateInterpolator(2f);
+    @Nullable
+    private WeakReference<View> lifted;
 
     public FocusOverlayView(final Context context) {
         final float density = context.getResources().getDisplayMetrics().density;
@@ -97,6 +104,7 @@ public final class FocusOverlayView extends Drawable implements
         ringGap = 3 * density;
         ringRadius = 12 * density;
         glowWidth = 2 * density;
+        liftZ = 4 * density;
         rectPaint.setAntiAlias(true);
         rectPaint.setStyle(Paint.Style.STROKE);
         rectPaint.setStrokeWidth(ringWidth);
@@ -131,6 +139,7 @@ public final class FocusOverlayView extends Drawable implements
         } else {
             focused = null;
         }
+        lift(newFocus);
 
         updateRect();
 
@@ -181,6 +190,40 @@ public final class FocusOverlayView extends Drawable implements
                 || t != focusRect.top || b != focusRect.bottom) {
             invalidateSelf();
         }
+    }
+
+    /**
+     * PipeTV: the focused card grows a little and rises above its neighbors, as on the TV apps,
+     * and settles back when the focus leaves. A card is an item of a list, at most half as wide
+     * as it, so full-width rows such as the settings' stay as they are. Only scale and Z move:
+     * no layout pass.
+     */
+    private void lift(@Nullable final View newFocus) {
+        final View previous = lifted == null ? null : lifted.get();
+        if (previous == newFocus) {
+            return;
+        }
+        if (previous != null) {
+            previous.animate().scaleX(1f).scaleY(1f).translationZ(0f)
+                    .setDuration(LIFT_MS).setInterpolator(liftInterpolator).start();
+        }
+        lifted = null;
+        if (newFocus == null || !(newFocus.getParent() instanceof RecyclerView)) {
+            return;
+        }
+        final RecyclerView list = (RecyclerView) newFocus.getParent();
+        if (newFocus.getWidth() == 0 || newFocus.getWidth() * 2 > list.getWidth()) {
+            return;
+        }
+        // The grown card may reach past its list's edges
+        list.setClipChildren(false);
+        list.setClipToPadding(false);
+        if (list.getParent() instanceof ViewGroup) {
+            ((ViewGroup) list.getParent()).setClipChildren(false);
+        }
+        newFocus.animate().scaleX(LIFT_SCALE).scaleY(LIFT_SCALE).translationZ(liftZ)
+                .setDuration(LIFT_MS).setInterpolator(liftInterpolator).start();
+        lifted = new WeakReference<>(newFocus);
     }
 
     private boolean isShown(@NonNull final View view) {
