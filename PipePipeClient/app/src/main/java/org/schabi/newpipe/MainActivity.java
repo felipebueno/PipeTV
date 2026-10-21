@@ -187,75 +187,11 @@ public class MainActivity extends AppCompatActivity {
                 NewVersionWorker.enqueueNewVersionCheckingWork(app, false);
         }
 
-        int currentVersionCode = BuildConfig.VERSION_CODE;
-        int storedVersionCode = prefs.getInt("version_code", 0);
-        long lastShowDonationTime = prefs.getLong("last_show_donation_time", 0);
-        long currentTime = System.currentTimeMillis();
-
-        if (currentVersionCode > storedVersionCode + 90) {
-            AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setTitle(R.string.fragment_feed_title);
-            builder.setMessage(R.string.update_log);
-            builder.setPositiveButton(R.string.ok, null);
-
-            AlertDialog.Builder builder2 = new AlertDialog.Builder(this);
-            builder2.setTitle(R.string.donation_dialog_title);
-            builder2.setMessage(R.string.donation_dialog_message);
-
-            builder2.setPositiveButton(R.string.sponsor_promote, (dialog, which) -> {
-                ShareUtils.openUrlInBrowser(this, getString(R.string.donation_url));
-            });
-            builder2.setNegativeButton(R.string.no, null);
-
-            final AlertDialog dialog2 = builder2.create();
-
-            final AlertDialog dialog1 = builder.create();
-            dialog1.setOnDismissListener(new DialogInterface.OnDismissListener() {
-                @Override
-                public void onDismiss(DialogInterface dialog) {
-                    if((storedVersionCode / 100 < 1110 && currentTime - lastShowDonationTime > 14 * 24 * 60 * 60 * 1000)
-                            || currentTime - lastShowDonationTime > 30L * 24 * 60 * 60 * 1000) {
-                        prefs.edit().putLong("last_show_donation_time", currentTime).apply();
-                        dialog2.show();
-                    }
-                }
-            });
-
-            dialog1.show();
-            prefs.edit().putInt("version_code", currentVersionCode).apply();
-        }
-        String lastAnnouncementId = prefs.getString("last_announcement_id", null);
-        try {
-            NewPipe.getDownloader().getAsync("https://github.com/InfinityLoop1308/PipePipe/wiki/Announcement", resp -> {
-                AnnouncementParser.ParsedResult result = parseContentsBeforeId(resp.responseBody(), lastAnnouncementId);
-                if(result.latestId != null) {
-                    Handler handler = new Handler(Looper.getMainLooper());
-                    handler.post(() -> {
-                        AlertDialog.Builder builder3 = new AlertDialog.Builder(this);
-                        builder3.setMessage(result.contents);
-                        builder3.setTitle(R.string.announcement);
-                        builder3.setPositiveButton(R.string.ok, (dialog, which) -> {
-                            prefs.edit().putString("last_announcement_id", result.latestId).apply();
-                        });
-                        builder3.show();
-                    });
-                }
-            });
-        } catch (Exception ignore) {
-        }
-
-
+        // PipeTV: a TV opens straight to its content. No changelog, donation, upstream
+        // announcement or update-checker dialogs (the checker looks at upstream's releases,
+        // not PipeTV's), and no announcement fetch slowing the start.
         int isFirstRun = prefs.getInt("isFirstRun", 0);
         if (isFirstRun == 0) {
-            AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setTitle(R.string.dialog_title_enable_update_checker);
-            builder.setMessage(R.string.dialog_message_enable_update_checker);
-            builder.setPositiveButton(R.string.ok, (dialog, which) -> {
-                prefs.edit().putBoolean(app.getString(R.string.update_app_key), true).apply();
-                NewVersionWorker.enqueueNewVersionCheckingWork(app, true);
-            });
-            builder.setNegativeButton(R.string.no, (dialog, which) -> prefs.edit().putBoolean(app.getString(R.string.update_app_key), false).apply());
-            builder.show();
             prefs.edit().putInt("isFirstRun", 1).apply();
             PermissionChecker.checkNotificationPermission(this);
         }

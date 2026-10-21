@@ -26,6 +26,7 @@ import android.graphics.ColorFilter;
 import android.graphics.Paint;
 import android.graphics.PixelFormat;
 import android.graphics.Rect;
+import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Handler;
@@ -41,6 +42,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.view.WindowCallbackWrapper;
+import androidx.core.content.ContextCompat;
 
 import org.schabi.newpipe.R;
 
@@ -67,10 +69,25 @@ public final class FocusOverlayView extends Drawable implements
 
     private WeakReference<View> focused;
 
+    // PipeTV: a ring that can be seen from the couch on light and dark screens alike,
+    // drawn just outside the focused view so it doesn't cover its content.
+    private final Paint haloPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    private final RectF ringRect = new RectF();
+    private final float ringGap;
+    private final float ringRadius;
+
     public FocusOverlayView(final Context context) {
+        final float density = context.getResources().getDisplayMetrics().density;
+        final float ringWidth = 3 * density;
+        ringGap = 3 * density;
+        ringRadius = 10 * density;
+        rectPaint.setAntiAlias(true);
         rectPaint.setStyle(Paint.Style.STROKE);
-        rectPaint.setStrokeWidth(2);
-        rectPaint.setColor(context.getResources().getColor(R.color.white));
+        rectPaint.setStrokeWidth(ringWidth);
+        rectPaint.setColor(ContextCompat.getColor(context, R.color.tv_focus_ring));
+        haloPaint.setStyle(Paint.Style.STROKE);
+        haloPaint.setStrokeWidth(ringWidth + 3 * density);
+        haloPaint.setColor(ContextCompat.getColor(context, R.color.tv_focus_halo));
     }
 
     @Override
@@ -156,7 +173,10 @@ public final class FocusOverlayView extends Drawable implements
     @Override
     public void draw(@NonNull final Canvas canvas) {
         if (!isInTouchMode && focusRect.width() != 0) {
-            canvas.drawRect(focusRect, rectPaint);
+            ringRect.set(focusRect);
+            ringRect.inset(-ringGap, -ringGap);
+            canvas.drawRoundRect(ringRect, ringRadius, ringRadius, haloPaint);
+            canvas.drawRoundRect(ringRect, ringRadius, ringRadius, rectPaint);
         }
     }
 

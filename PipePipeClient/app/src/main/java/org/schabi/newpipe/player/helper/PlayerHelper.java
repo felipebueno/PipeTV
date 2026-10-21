@@ -381,7 +381,9 @@ public final class PlayerHelper {
 
     public static boolean isStartMainPlayerFullscreenEnabled(@NonNull final Context context) {
         return getPreferences(context)
-                .getBoolean(context.getString(R.string.start_main_player_fullscreen_key), false);
+                .getBoolean(context.getString(R.string.start_main_player_fullscreen_key),
+                        context.getResources().getBoolean(
+                                R.bool.start_main_player_fullscreen_default));
     }
 
     public static boolean isAutoQueueEnabled(@NonNull final Context context) {

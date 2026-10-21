@@ -20,7 +20,8 @@ android {
     compileSdk 37
 
     defaultConfig {
-        applicationId "InfinityLoop1309.NewPipeEnhanced"
+        // PipeTV: its own id, so it installs next to PipePipe
+        applicationId "io.github.felipebueno.pipetv"
         minSdk 23
         //noinspection OldTargetApi,ExpiredTargetSdkVersion
         targetSdk 36
@@ -66,10 +67,10 @@ android {
             if (true) {
                 // default values when branch name could not be determined or is master or dev
                 applicationIdSuffix ".debug"
-                resValue "string", "app_name", "PipePipe Debug"
+                resValue "string", "app_name", "PipeTV Debug"
             } else {
                 applicationIdSuffix ".debug." + normalizedWorkingBranch
-                resValue "string", "app_name", "PipePipe " + workingBranch
+                resValue "string", "app_name", "PipeTV " + workingBranch
             }
         }
 
@@ -79,9 +80,9 @@ android {
             }
             if (System.properties.containsKey('packageSuffix')) {
                 applicationIdSuffix System.getProperty('packageSuffix')
-                resValue "string", "app_name", "PipePipe " + System.getProperty('packageSuffix')
+                resValue "string", "app_name", "PipeTV " + System.getProperty('packageSuffix')
             } else {
-                resValue "string", "app_name", "PipePipe"
+                resValue "string", "app_name", "PipeTV"
             }
             minifyEnabled true
             shrinkResources false // disabled to fix F-Droid's reproducible build
@@ -156,7 +157,7 @@ androidComponents.onVariants(androidComponents.selector().all()) { variant ->
         }
         output.versionCode.set(versionCode)
         output.outputFileName.set(
-                "PipePipe_${appVersionName}-${abi ?: 'universal'}-${variant.name}.apk")
+                "PipeTV_${appVersionName}-${abi ?: 'universal'}-${variant.name}.apk")
     }
 }
 

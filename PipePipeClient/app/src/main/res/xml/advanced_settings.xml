@@ -40,7 +40,7 @@
                 app:iconSpaceReserved="false" />
 
         <SwitchPreferenceCompat
-                android:defaultValue="false"
+                android:defaultValue="@bool/start_main_player_fullscreen_default"
                 android:key="@string/start_main_player_fullscreen_key"
                 android:summary="@string/start_main_player_fullscreen_summary"
                 android:title="@string/start_main_player_fullscreen_title"

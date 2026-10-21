@@ -268,7 +268,9 @@ class PlayerPlaybackStateController(private val player: Player) {
             // Only when the player owns the screen: on Android TV an embedded player
             // (bottom sheet / sticky player) must not steal the D-pad focus from the
             // page content, e.g. when returning from another activity
+            // PipeTV: nor from the seek bar, while Left and Right are seeking with it.
             if (!player.isQueueVisible
+                    && !player.binding.playbackSeekBar.hasFocus()
                     && (player.isFullscreen || player.popupPlayerSelected())) {
                 player.binding.playPauseButton.requestFocus()
             }
@@ -317,6 +319,7 @@ class PlayerPlaybackStateController(private val player: Player) {
                 // Same as in onPlaying(): an embedded player must not steal focus from
                 // the detail page content, e.g. the comments list
                 if (!player.isQueueVisible
+                        && !player.binding.playbackSeekBar.hasFocus()
                         && (player.isFullscreen || player.popupPlayerSelected())) {
                     player.binding.playPauseButton.requestFocus()
                 }

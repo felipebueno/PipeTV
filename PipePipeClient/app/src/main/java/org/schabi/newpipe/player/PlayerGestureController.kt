@@ -215,7 +215,19 @@ class PlayerGestureController(private val player: Player) {
                         Player.DPAD_CONTROLS_HIDE_TIME.toLong()
                     )
                 } else {
-                    binding.playPauseButton.requestFocus()
+                    // PipeTV: as on TV players, Left and Right seek right away. The seek bar then
+                    // takes the focus, so the next presses keep seeking in the same steps.
+                    when (keyCode) {
+                        KeyEvent.KEYCODE_DPAD_LEFT -> {
+                            player.fastRewind()
+                            binding.playbackSeekBar.requestFocus()
+                        }
+                        KeyEvent.KEYCODE_DPAD_RIGHT -> {
+                            player.fastForward()
+                            binding.playbackSeekBar.requestFocus()
+                        }
+                        else -> binding.playPauseButton.requestFocus()
+                    }
                     player.showControlsThenHide()
                     player.showSystemUIPartially()
                     return true

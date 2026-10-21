@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- PipeTV: on a TV a video opens straight in fullscreen. -->
+    <bool name="start_main_player_fullscreen_default">true</bool>
+</resources>

@@ -1,3 +1,50 @@
+# PipeTV
+
+PipeTV is a fork of [PipePipe](https://github.com/InfinityLoop1308/PipePipe)
+made for TVs: it opens straight to its content, shows clearly where the focus
+is, plays videos in fullscreen and answers the remote the way TV players do.
+It installs next to PipePipe (id `io.github.felipebueno.pipetv`) and keeps
+PipePipe's GPLv3 license.
+
+**First changes (2026-10):**
+
+- No changelog, donation, upstream announcement or update-checker dialogs on
+  start, and no announcement fetch slowing it down.
+- A thick rounded focus ring (`FocusOverlayView`) that shows on white lists,
+  the red toolbar and the black player alike.
+- Videos open in fullscreen on TVs (the setting still exists; it defaults to
+  on through `values-television`).
+- In the player, Left and Right seek right away and hand the focus to the seek
+  bar, so holding them keeps seeking.
+- PipeTV name and banner.
+
+## Building
+
+The app lives in `PipePipeClient/` (a squashed git subtree of upstream's
+client); the extractor is a submodule. The code targets Java 25.
+
+```sh
+git submodule update --init PipePipeExtractor
+cd PipePipeClient
+JAVA_HOME=/path/to/jdk-25 ./gradlew assembleDebug
+```
+
+APKs come per ABI; 32-bit TV sticks need `armeabi-v7a`.
+
+## Following upstream
+
+`upstream` is PipePipe and `upstream-client` its client repository. Watch them
+and bring over what's good for TVs:
+
+```sh
+git fetch upstream-client
+git log --oneline upstream-client/dev          # what's new upstream
+git cherry-pick -X subtree=PipePipeClient <commit>
+git subtree pull --prefix=PipePipeClient upstream-client <tag> --squash   # a whole release
+```
+
+Upstream's README follows.
+
 <hr>
 <p align="center"><img src="assets/logo.png" width="150"></p> 
 <h2 align="center"><b>PipePipe</b></h2>
