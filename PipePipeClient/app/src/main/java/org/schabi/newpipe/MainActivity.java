@@ -195,11 +195,8 @@ public class MainActivity extends AppCompatActivity {
         final App app = App.getApp();
         final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(app);
 
-        if (prefs.getBoolean(app.getString(R.string.update_app_key), false)) {
-            // Start the worker which is checking all conditions
-            // and eventually searching for a new version.
-                NewVersionWorker.enqueueNewVersionCheckingWork(app, false);
-        }
+        // PipeTV: no NewVersionWorker. It compares this version with PipePipe's releases and
+        // would offer PipePipe; PipeTV's builds are on its own GitHub releases.
 
         // PipeTV: a TV opens straight to its content. No changelog, donation, upstream
         // announcement or update-checker dialogs (the checker looks at upstream's releases,

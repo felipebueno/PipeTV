@@ -10,13 +10,9 @@ def keyPath = System.getenv("KEY_PATH")
 def keyStorePassword = System.getenv("KEY_STORE_PASSWORD")
 def signingKeyAlias = System.getenv("KEY_ALIAS")
 def signingKeyPassword = System.getenv("KEY_PASSWORD")
-def baseVersionCode = 1110
-def appVersionName = "5.5.0"
-def abiCodes = ['armeabi-v7a': 1, 'x86': 2, 'x86_64': 3, 'arm64-v8a': 4]
-def stableBuildConfigVersionCode =
-        (100 * baseVersionCode) + abiCodes['armeabi-v7a']
-// PipeTV: the TV label's build number is the commit count, with a "+" when the build has
-// changes not committed yet. Through providers, so the configuration cache follows git.
+// PipeTV: the build number is the commit count, with a "+" when the build has changes not
+// committed yet. Through providers, so the configuration cache follows git. A CI checkout needs
+// the whole history (fetch-depth: 0) for the count.
 def pipetvCommitCount = providers.exec {
     commandLine 'git', 'rev-list', '--count', 'HEAD'
     ignoreExitValue = true
@@ -25,6 +21,14 @@ def pipetvUncommitted = !providers.exec {
     commandLine 'git', 'status', '--porcelain'
     ignoreExitValue = true
 }.standardOutput.asText.get().trim().isEmpty()
+// PipeTV's own version, moved by hand along with CHANGELOG.md. It is based on PipePipe 5.5.0.
+def appVersionName = "0.6.0"
+// PipeTV: each build's version code is higher than the one before it and than PipePipe's own
+// (1110), so a newer build always installs over an older one
+def baseVersionCode = 2000 + (pipetvCommitCount.isInteger() ? pipetvCommitCount.toInteger() : 0)
+def abiCodes = ['armeabi-v7a': 1, 'x86': 2, 'x86_64': 3, 'arm64-v8a': 4]
+def stableBuildConfigVersionCode =
+        (100 * baseVersionCode) + abiCodes['armeabi-v7a']
 
 android {
     compileSdk 37
