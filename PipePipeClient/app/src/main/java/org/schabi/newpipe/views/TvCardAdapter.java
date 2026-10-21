@@ -10,6 +10,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -20,7 +21,11 @@ import org.schabi.newpipe.util.Localization;
 import org.schabi.newpipe.util.PicassoHelper;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * PipeTV: the video cards of the TV rows, the home's and the player's related videos: a
@@ -30,9 +35,14 @@ public final class TvCardAdapter extends RecyclerView.Adapter<TvCardAdapter.Card
 
     public interface Listener {
         void onCardChosen(@NonNull StreamInfoItem item);
+
+        default void onCardFocused(@NonNull final StreamInfoItem item) {
+        }
     }
 
     private final List<StreamInfoItem> items = new ArrayList<>();
+    /** Each video's id, so its card follows it when a row changes, and the focus with it. */
+    private final Map<String, Long> ids = new HashMap<>();
     private final Listener listener;
     private final int cardWidth;
 
@@ -41,12 +51,61 @@ public final class TvCardAdapter extends RecyclerView.Adapter<TvCardAdapter.Card
                          @NonNull final Listener listener) {
         this.listener = listener;
         cardWidth = Math.round(cardWidthDp * context.getResources().getDisplayMetrics().density);
+        setHasStableIds(true);
     }
 
+    /** Shows the given videos, each once: two cards can't have the same id. */
     public void setItems(@NonNull final List<StreamInfoItem> newItems) {
         items.clear();
-        items.addAll(newItems);
+        items.addAll(unique(newItems));
         notifyDataSetChanged();
+    }
+
+    /** The position of the video with the given URL, or -1 when the cards don't show it. */
+    public int indexOf(@Nullable final String url) {
+        for (int i = 0; i < items.size(); i++) {
+            if (items.get(i).getUrl().equals(url)) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    /** Whether the cards already show these videos, in this order. */
+    public boolean hasItems(@NonNull final List<StreamInfoItem> others) {
+        final List<StreamInfoItem> unique = unique(others);
+        if (unique.size() != items.size()) {
+            return false;
+        }
+        for (int i = 0; i < items.size(); i++) {
+            if (!items.get(i).getUrl().equals(unique.get(i).getUrl())) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    @NonNull
+    private static List<StreamInfoItem> unique(@NonNull final List<StreamInfoItem> list) {
+        final Set<String> urls = new HashSet<>();
+        final List<StreamInfoItem> unique = new ArrayList<>();
+        for (final StreamInfoItem item : list) {
+            if (urls.add(item.getUrl())) {
+                unique.add(item);
+            }
+        }
+        return unique;
+    }
+
+    @Override
+    public long getItemId(final int position) {
+        final String url = items.get(position).getUrl();
+        Long id = ids.get(url);
+        if (id == null) {
+            id = (long) ids.size();
+            ids.put(url, id);
+        }
+        return id;
     }
 
     @NonNull
@@ -96,6 +155,12 @@ public final class TvCardAdapter extends RecyclerView.Adapter<TvCardAdapter.Card
                 final int position = getBindingAdapterPosition();
                 if (position != RecyclerView.NO_POSITION) {
                     listener.onCardChosen(items.get(position));
+                }
+            });
+            itemView.setOnFocusChangeListener((v, hasFocus) -> {
+                final int position = getBindingAdapterPosition();
+                if (hasFocus && position != RecyclerView.NO_POSITION) {
+                    listener.onCardFocused(items.get(position));
                 }
             });
         }

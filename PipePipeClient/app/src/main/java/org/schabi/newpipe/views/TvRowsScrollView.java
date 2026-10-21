@@ -14,7 +14,14 @@ import androidx.annotation.Nullable;
  * the top of the screen, title included, instead of scrolling just enough to show the card.
  */
 public final class TvRowsScrollView extends ScrollView {
+    public interface FocusRestorer {
+        /** Focuses where the focus was the last time, if it can; false otherwise. */
+        boolean restoreFocus();
+    }
+
     private final int alignMargin;
+    @Nullable
+    private FocusRestorer focusRestorer;
 
     public TvRowsScrollView(@NonNull final Context context) {
         super(context);
@@ -23,6 +30,22 @@ public final class TvRowsScrollView extends ScrollView {
         // The cards take the focus, never the scroll itself (which would wear the focus ring
         // around the whole home while the rows load)
         setFocusable(false);
+    }
+
+    /**
+     * Gives the focus back to where it was when the rows get it as a whole, e.g. as the player
+     * closes without a card to return to. Without it, the first card would take it, and none
+     * when that card is scrolled out of the screen.
+     */
+    public void setFocusRestorer(@Nullable final FocusRestorer restorer) {
+        focusRestorer = restorer;
+    }
+
+    @Override
+    protected boolean onRequestFocusInDescendants(final int direction,
+                                                  final Rect previouslyFocusedRect) {
+        return (focusRestorer != null && focusRestorer.restoreFocus())
+                || super.onRequestFocusInDescendants(direction, previouslyFocusedRect);
     }
 
     @Override

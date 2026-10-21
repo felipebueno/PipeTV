@@ -14,9 +14,12 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.room.rxjava3.RxRoom;
 
+import org.schabi.newpipe.NewPipeDatabase;
 import org.schabi.newpipe.R;
 import org.schabi.newpipe.database.feed.model.FeedGroupEntity;
+import org.schabi.newpipe.database.history.model.StreamHistoryEntity;
 import org.schabi.newpipe.database.stream.StreamStatisticsEntry;
 import org.schabi.newpipe.database.stream.StreamWithState;
 import org.schabi.newpipe.extractor.InfoItem;
@@ -39,6 +42,7 @@ import java.util.List;
 
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
+import io.reactivex.rxjava3.disposables.Disposable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
 /**
@@ -54,6 +58,20 @@ public class TvHomeFragment extends Fragment {
     private final CompositeDisposable disposables = new CompositeDisposable();
     @Nullable
     private LinearLayout column;
+    @Nullable
+    private Row recent;
+    @Nullable
+    private Row moreLike;
+    @Nullable
+    private Disposable moreLikeLoad;
+    /** The video the more like row is about. */
+    @Nullable
+    private String moreLikeSeedUrl;
+    /** The video of the last card focused, the one the player returns the focus to. */
+    @Nullable
+    private String focusedUrl;
+    @Nullable
+    private Row focusedRow;
 
     @Override
     public View onCreateView(@NonNull final LayoutInflater inflater,
@@ -62,6 +80,9 @@ public class TvHomeFragment extends Fragment {
         final Context context = requireContext();
         final TvRowsScrollView scroll = new TvRowsScrollView(context);
         scroll.setClipChildren(false);
+        // Back on the last card focused when the home gets the focus as a whole: the player
+        // opened by a link has no card to return to
+        scroll.setFocusRestorer(() -> focusedRow != null && focusedRow.focus(focusedUrl));
         column = new LinearLayout(context);
         column.setOrientation(LinearLayout.VERTICAL);
         column.setClipChildren(false);
@@ -78,11 +99,11 @@ public class TvHomeFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         // The recently watched first: they load at once from the database and take the focus,
         // and the rows loaded from the network then arrive below it, not above
-        final Row recent = addRow();
-        final Row moreLike = addRow();
+        recent = addRow();
+        moreLike = addRow();
         final Row live = addRow();
         final Row news = addRow();
-        loadRecent(recent, moreLike);
+        watchRecent();
         loadLive(live);
         loadNews(news);
     }
@@ -91,43 +112,85 @@ public class TvHomeFragment extends Fragment {
     public void onDestroyView() {
         disposables.clear();
         column = null;
+        recent = null;
+        moreLike = null;
+        moreLikeLoad = null;
+        moreLikeSeedUrl = null;
+        focusedUrl = null;
+        focusedRow = null;
         super.onDestroyView();
     }
 
-    /** The recently watched videos, and more like the last of them. */
-    private void loadRecent(@NonNull final Row recent, @NonNull final Row moreLike) {
-        disposables.add(new HistoryRecordManager(requireContext()).getStreamStatistics()
-                .firstElement()
-                .map(entries -> {
-                    final List<StreamStatisticsEntry> sorted = new ArrayList<>(entries);
-                    Collections.sort(sorted, Comparator.comparing(
-                            StreamStatisticsEntry::getLatestAccessDate).reversed());
-                    final List<StreamInfoItem> items = new ArrayList<>();
-                    for (final StreamStatisticsEntry entry : sorted) {
-                        if (items.size() == ROW_SIZE) {
-                            break;
-                        }
-                        items.add(entry.toStreamInfoItem());
-                    }
-                    return items;
-                })
+    /**
+     * The recently watched videos, and more like the last of them. They follow the history: a
+     * video joins it as it starts, under the player, so the rows are up to date when it closes.
+     */
+    private void watchRecent() {
+        final HistoryRecordManager history = new HistoryRecordManager(requireContext());
+        // The history table changes once per video watched, while the statistics also read the
+        // progress, saved on every seek: so the whole history is only read again then
+        disposables.add(RxRoom.createFlowable(NewPipeDatabase.getInstance(requireContext()),
+                        StreamHistoryEntity.STREAM_HISTORY_TABLE)
+                .subscribeOn(Schedulers.io())
+                .unsubscribeOn(Schedulers.io())
+                .switchMapMaybe(changed -> history.getStreamStatistics().firstElement())
+                .map(TvHomeFragment::recentItems)
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(items -> {
-                    recent.show(getString(R.string.pipetv_recently_watched), items);
-                    if (!items.isEmpty()) {
-                        loadMoreLike(moreLike, items.get(0));
-                    }
-                }, error -> Log.w(TAG, "Could not load the history", error)));
+                .subscribe(this::showRecent,
+                        error -> Log.w(TAG, "Could not load the history", error)));
     }
 
-    /** The videos YouTube relates to the given one, for a row of more like it. */
-    private void loadMoreLike(@NonNull final Row row, @NonNull final StreamInfoItem seed) {
-        disposables.add(ExtractorHelper.getStreamInfo(seed.getServiceId(), seed.getUrl(), false)
+    @NonNull
+    private static List<StreamInfoItem> recentItems(
+            @NonNull final List<StreamStatisticsEntry> entries) {
+        final List<StreamStatisticsEntry> sorted = new ArrayList<>(entries);
+        Collections.sort(sorted, Comparator.comparing(
+                StreamStatisticsEntry::getLatestAccessDate).reversed());
+        final List<StreamInfoItem> items = new ArrayList<>();
+        for (final StreamStatisticsEntry entry : sorted) {
+            if (items.size() == ROW_SIZE) {
+                break;
+            }
+            items.add(entry.toStreamInfoItem());
+        }
+        return items;
+    }
+
+    private void showRecent(@NonNull final List<StreamInfoItem> items) {
+        if (recent == null
+                || !recent.show(getString(R.string.pipetv_recently_watched), items)) {
+            return;
+        }
+        if (items.isEmpty()) {
+            // A cleared history takes what came from it along
+            loadMoreLike(null);
+        } else if (!items.get(0).getUrl().equals(moreLikeSeedUrl)
+                && moreLike.adapter.indexOf(focusedUrl) < 0) {
+            // More like the last video watched, unless the player returns the focus to that
+            // row: it stays as it was under the focus
+            loadMoreLike(items.get(0));
+        }
+    }
+
+    /** The videos YouTube relates to the given one, in the more like row; none hides it. */
+    private void loadMoreLike(@Nullable final StreamInfoItem seed) {
+        if (moreLikeLoad != null) {
+            disposables.remove(moreLikeLoad);
+            moreLikeLoad = null;
+        }
+        moreLikeSeedUrl = seed == null ? null : seed.getUrl();
+        if (seed == null) {
+            moreLike.show("", Collections.emptyList());
+            return;
+        }
+        moreLikeLoad = ExtractorHelper.getStreamInfo(seed.getServiceId(), seed.getUrl(), false)
                 .subscribeOn(Schedulers.io())
                 .map(info -> streams(info.getRelatedItems()))
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(items -> row.show(getString(R.string.pipetv_more_like, seed.getName()),
-                        items), error -> Log.w(TAG, "Could not load related videos", error)));
+                .subscribe(items -> moreLike.show(
+                        getString(R.string.pipetv_more_like, seed.getName()), items),
+                        error -> Log.w(TAG, "Could not load related videos", error));
+        disposables.add(moreLikeLoad);
     }
 
     /** The service's main kiosk, live videos on YouTube. */
@@ -212,18 +275,58 @@ public class TvHomeFragment extends Fragment {
             list.setLayoutManager(new LinearLayoutManager(view.getContext(),
                     LinearLayoutManager.HORIZONTAL, false));
             list.setHasFixedSize(true);
+            // The cards' stable ids would otherwise animate every change of the row
+            list.setItemAnimator(null);
             adapter = new TvCardAdapter(view.getContext(), CARD_WIDTH_DP,
-                    TvHomeFragment.this::play);
+                    new TvCardAdapter.Listener() {
+                        @Override
+                        public void onCardChosen(@NonNull final StreamInfoItem item) {
+                            play(item);
+                        }
+
+                        @Override
+                        public void onCardFocused(@NonNull final StreamInfoItem item) {
+                            focusedUrl = item.getUrl();
+                            focusedRow = Row.this;
+                        }
+                    });
             list.setAdapter(adapter);
         }
 
-        void show(@NonNull final String rowTitle, @NonNull final List<StreamInfoItem> items) {
+        /** Focuses the card of the given video, when the row shows it on screen. */
+        boolean focus(@Nullable final String url) {
+            final int position = adapter.indexOf(url);
+            final RecyclerView.ViewHolder holder = position < 0
+                    || view.getVisibility() != View.VISIBLE
+                    ? null : list.findViewHolderForAdapterPosition(position);
+            return holder != null && holder.itemView.requestFocus();
+        }
+
+        /**
+         * Shows the row with the given videos, or hides it without any.
+         *
+         * @return whether the row changed
+         */
+        boolean show(@NonNull final String rowTitle, @NonNull final List<StreamInfoItem> items) {
+            final boolean shown = view.getVisibility() == View.VISIBLE;
             if (items.isEmpty()) {
-                return;
+                view.setVisibility(View.GONE);
+                adapter.setItems(items);
+                return shown;
+            }
+            if (shown && adapter.hasItems(items)) {
+                return false;
             }
             title.setText(rowTitle);
             adapter.setItems(items);
             view.setVisibility(View.VISIBLE);
+            if (shown) {
+                // The focus's video stays in view, and its card goes along with it, so the
+                // player returns the focus there; otherwise the row starts over, where the
+                // video just watched now is
+                list.scrollToPosition(Math.max(0, adapter.indexOf(focusedUrl)));
+                return true;
+            }
             // The first row to arrive takes the focus, unless something already has it
             list.post(() -> {
                 if (getActivity() != null && getActivity().getCurrentFocus() == null
@@ -231,6 +334,7 @@ public class TvHomeFragment extends Fragment {
                     list.getChildAt(0).requestFocus();
                 }
             });
+            return true;
         }
     }
 }

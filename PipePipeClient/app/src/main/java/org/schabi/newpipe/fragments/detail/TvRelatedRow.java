@@ -52,6 +52,8 @@ final class TvRelatedRow {
         list = root.findViewById(R.id.pipetvRelatedList);
         list.setLayoutManager(new LinearLayoutManager(parent.getContext(),
                 LinearLayoutManager.HORIZONTAL, false));
+        // The cards' stable ids would otherwise animate every change of the row
+        list.setItemAnimator(null);
         adapter = new TvCardAdapter(parent.getContext(), CARD_WIDTH_DP, item -> {
             hide();
             listener.onRelatedVideoChosen(item);
