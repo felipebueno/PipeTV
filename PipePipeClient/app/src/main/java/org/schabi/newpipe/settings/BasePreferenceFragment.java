@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import org.schabi.newpipe.MainActivity;
 import org.schabi.newpipe.R;
+import org.schabi.newpipe.update.PipeTvUpdates;
 import org.schabi.newpipe.util.DeviceUtils;
 import org.schabi.newpipe.util.ThemeHelper;
 
@@ -112,8 +113,10 @@ public abstract class BasePreferenceFragment extends PreferenceFragmentCompat {
     };
 
     private void hideWhatPipeTvDoesNotUse() {
-        // PipePipe's update checker offers PipePipe's own releases, never PipeTV's
-        hidePreference(R.string.update_pref_screen_key);
+        // The updates screen drives PipeTV's updater, which only release builds have
+        if (!PipeTvUpdates.isSupported()) {
+            hidePreference(R.string.update_pref_screen_key);
+        }
         if (!DeviceUtils.isTv(requireContext())) {
             return;
         }

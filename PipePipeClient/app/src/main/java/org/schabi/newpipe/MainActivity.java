@@ -80,6 +80,8 @@ import org.schabi.newpipe.player.PlayerIntentConstants;
 import org.schabi.newpipe.player.event.OnKeyDownListener;
 import org.schabi.newpipe.player.helper.PlayerHolder;
 import org.schabi.newpipe.player.playqueue.PlayQueue;
+import org.schabi.newpipe.update.PipeTvUpdateDialog;
+import org.schabi.newpipe.update.PipeTvUpdates;
 import org.schabi.newpipe.util.selection.SelectionToolbar;
 import org.schabi.newpipe.util.*;
 import org.schabi.newpipe.util.external_communication.ShareUtils;
@@ -196,7 +198,7 @@ public class MainActivity extends AppCompatActivity {
         final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(app);
 
         // PipeTV: no NewVersionWorker. It compares this version with PipePipe's releases and
-        // would offer PipePipe; PipeTV's builds are on its own GitHub releases.
+        // would offer PipePipe; PipeTV's own updater (update.PipeTvUpdates) runs in onResume.
 
         // PipeTV: a TV opens straight to its content. No changelog, donation, upstream
         // announcement or update-checker dialogs (the checker looks at upstream's releases,
@@ -614,6 +616,8 @@ public class MainActivity extends AppCompatActivity {
         if (tvRail != null) {
             updateTvRailItems(); // the main tabs may have changed in the settings
         }
+        // PipeTV: a TV app may stay open for days, so its updates are looked for on return too
+        PipeTvUpdates.checkWhenDue(this);
         try {
             final int selectedServiceId = ServiceHelper.getSelectedServiceId(this);
             final String selectedServiceName = NewPipe.getService(selectedServiceId)
@@ -908,6 +912,11 @@ public class MainActivity extends AppCompatActivity {
         try {
             if (DEBUG) {
                 Log.d(TAG, "handleIntent() called with: intent = [" + intent + "]");
+            }
+
+            // PipeTV: the notification of a newer build, on phones
+            if (intent.getBooleanExtra(PipeTvUpdates.EXTRA_SHOW_UPDATE, false)) {
+                PipeTvUpdateDialog.showLatest(this);
             }
 
             if (intent.hasExtra(Constants.KEY_LINK_TYPE)) {

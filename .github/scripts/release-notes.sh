@@ -17,12 +17,7 @@ echo
 
 echo "## What's new in $version"
 echo
-section=$(awk -v version="$version" '
-    index($0, "## [" version "]") == 1 { found = 1; next }
-    found && /^## \[/ { exit }
-    found && !started && /^[[:space:]]*$/ { next }
-    found { started = 1; print }
-' CHANGELOG.md)
+section=$("$(dirname "$0")/changelog-section.sh" "$version")
 if [ -n "$(echo "$section" | tr -d '[:space:]')" ]; then
     echo "$section"
 else

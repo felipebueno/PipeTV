@@ -8,6 +8,22 @@ is built and published on [GitHub Releases](https://github.com/felipebueno/PipeT
 as `PipeTV <version> (build <n>)`, with its version's section below as the
 release's "what's new".
 
+## [0.7.0] - 2026-10-21
+
+### Added
+
+- PipeTV updates itself. It looks for newer builds on its GitHub releases every
+  hour, or when you ask in Settings, Updates. A newer build shows at the
+  top of the TV home, and as a notification on phones: choose it to see what's
+  new, and Update downloads it with a progress bar, checks it against its
+  release's checksum and opens Android's installer, which ends on Open, back in
+  PipeTV. Settings, Updates turns the automatic checks off.
+- PipeTV's website: https://felipebueno.github.io/PipeTV/
+
+### Changed
+
+- Changes to the README, the docs or the website no longer make a new build.
+
 ## [0.6.0] - 2026-10-21
 
 ### Changed

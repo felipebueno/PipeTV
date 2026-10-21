@@ -28,6 +28,9 @@ import org.schabi.newpipe.extractor.StreamingService;
 import org.schabi.newpipe.extractor.stream.StreamInfoItem;
 import org.schabi.newpipe.local.feed.FeedDatabaseManager;
 import org.schabi.newpipe.local.history.HistoryRecordManager;
+import org.schabi.newpipe.update.PipeTvRelease;
+import org.schabi.newpipe.update.PipeTvUpdateDialog;
+import org.schabi.newpipe.update.PipeTvUpdates;
 import org.schabi.newpipe.util.ExtractorHelper;
 import org.schabi.newpipe.util.KioskTranslator;
 import org.schabi.newpipe.util.NavigationHelper;
@@ -39,6 +42,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
@@ -58,6 +62,8 @@ public class TvHomeFragment extends Fragment {
     private final CompositeDisposable disposables = new CompositeDisposable();
     @Nullable
     private LinearLayout column;
+    @Nullable
+    private TextView updateBanner;
     @Nullable
     private Row recent;
     @Nullable
@@ -88,6 +94,10 @@ public class TvHomeFragment extends Fragment {
         column.setClipChildren(false);
         column.setPadding(0, 0, 0,
                 Math.round(48 * getResources().getDisplayMetrics().density));
+        // A newer build of PipeTV, offered above the rows
+        updateBanner = (TextView) inflater.inflate(R.layout.pipetv_update_banner, column, false);
+        TvRowsScrollView.markHeader(updateBanner);
+        column.addView(updateBanner);
         scroll.addView(column, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT));
         return scroll;
@@ -106,12 +116,30 @@ public class TvHomeFragment extends Fragment {
         watchRecent();
         loadLive(live);
         loadNews(news);
+        disposables.add(PipeTvUpdates.newer()
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(this::showUpdate));
+    }
+
+    private void showUpdate(@NonNull final Optional<PipeTvRelease> newer) {
+        if (updateBanner == null) {
+            return;
+        }
+        if (!newer.isPresent()) {
+            updateBanner.setVisibility(View.GONE);
+            return;
+        }
+        final PipeTvRelease release = newer.get();
+        updateBanner.setText(getString(R.string.pipetv_update_available, release.version));
+        updateBanner.setOnClickListener(v -> PipeTvUpdateDialog.show(requireActivity(), release));
+        updateBanner.setVisibility(View.VISIBLE);
     }
 
     @Override
     public void onDestroyView() {
         disposables.clear();
         column = null;
+        updateBanner = null;
         recent = null;
         moreLike = null;
         moreLikeLoad = null;

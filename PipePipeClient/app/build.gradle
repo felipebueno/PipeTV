@@ -12,8 +12,9 @@ def signingKeyAlias = System.getenv("KEY_ALIAS")
 def signingKeyPassword = System.getenv("KEY_PASSWORD")
 // PipeTV: the build number is the commit count, with a "+" when the build has changes not
 // committed yet. Through providers, so the configuration cache follows git. A CI checkout needs
-// the whole history (fetch-depth: 0) for the count.
-def pipetvCommitCount = providers.exec {
+// the whole history (fetch-depth: 0) for the count. PIPETV_BUILD_NUMBER overrides it, e.g. to
+// make a build older than the latest release and try the updater with it.
+def pipetvCommitCount = System.getenv("PIPETV_BUILD_NUMBER") ?: providers.exec {
     commandLine 'git', 'rev-list', '--count', 'HEAD'
     ignoreExitValue = true
 }.standardOutput.asText.get().trim()
@@ -22,7 +23,7 @@ def pipetvUncommitted = !providers.exec {
     ignoreExitValue = true
 }.standardOutput.asText.get().trim().isEmpty()
 // PipeTV's own version, moved by hand along with CHANGELOG.md. It is based on PipePipe 5.5.0.
-def appVersionName = "0.6.0"
+def appVersionName = "0.7.0"
 // PipeTV: each build's version code is higher than the one before it and than PipePipe's own
 // (1110), so a newer build always installs over an older one
 def baseVersionCode = 2000 + (pipetvCommitCount.isInteger() ? pipetvCommitCount.toInteger() : 0)

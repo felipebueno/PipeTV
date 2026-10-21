@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- PipeTV: the TV home's offer of a newer build (TvHomeFragment), above the rows. OK opens
+     the update's dialog. -->
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginStart="24dp"
+    android:layout_marginTop="4dp"
+    android:layout_marginBottom="12dp"
+    android:background="@drawable/pipetv_update_banner_background"
+    android:clickable="true"
+    android:drawableStart="@drawable/ic_file_download"
+    android:drawablePadding="10dp"
+    android:drawableTint="#FFFFFFFF"
+    android:focusable="true"
+    android:fontFamily="sans-serif-medium"
+    android:gravity="center_vertical"
+    android:paddingStart="14dp"
+    android:paddingTop="8dp"
+    android:paddingEnd="20dp"
+    android:paddingBottom="8dp"
+    android:textColor="#FFFFFFFF"
+    android:textSize="16sp"
+    android:visibility="gone" />

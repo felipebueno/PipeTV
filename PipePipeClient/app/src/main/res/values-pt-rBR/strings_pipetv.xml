@@ -4,4 +4,21 @@
     <string name="pipetv_recently_watched">Assistidos recentemente</string>
     <string name="pipetv_more_like">Mais como %1$s</string>
     <string name="pipetv_remote_control">Controle remoto</string>
+    <string name="pipetv_update_available">Atualização disponível: PipeTV %1$s</string>
+    <string name="pipetv_update_title">PipeTV %1$s</string>
+    <string name="pipetv_update_builds">Build %1$d. Você tem o build %2$s.</string>
+    <string name="pipetv_update_whats_new">Novidades da %1$s</string>
+    <string name="pipetv_update_install">Atualizar</string>
+    <string name="pipetv_update_later">Agora não</string>
+    <string name="pipetv_update_starting">Baixando…</string>
+    <string name="pipetv_update_downloading">Baixando: %1$s de %2$s</string>
+    <string name="pipetv_update_failed">Não foi possível baixar a atualização (%1$s).</string>
+    <string name="pipetv_update_retry">Tentar de novo</string>
+    <string name="pipetv_update_no_installer">Este aparelho não tem um instalador de apps para a atualização</string>
+    <string name="pipetv_update_up_to_date">O PipeTV está atualizado</string>
+    <string name="pipetv_update_check_failed">Não foi possível procurar atualizações</string>
+    <string name="pipetv_update_notification_title">PipeTV %1$s disponível</string>
+    <string name="pipetv_update_notification_text">Toque para atualizar</string>
+    <string name="pipetv_update_auto_title">Procurar atualizações automaticamente</string>
+    <string name="pipetv_update_auto_summary">A cada hora, nas versões do PipeTV no GitHub</string>
 </resources>

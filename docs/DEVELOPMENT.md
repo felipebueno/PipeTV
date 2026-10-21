@@ -45,6 +45,11 @@ under stable names (`PipeTV-armeabi-v7a.apk` and so on), `SHA256SUMS`,
 version's section of `CHANGELOG.md`, the commits since the previous build,
 install steps and checksums.
 
+- Changes to the README, `docs/` or `site/` alone don't make a build.
+- Each release also carries `release.json`: the version, the build number, the
+  version's section of `CHANGELOG.md`, and each APK's size and SHA-256. The
+  app's updater (`update.PipeTvUpdates`) reads it from
+  `releases/latest/download/release.json`, which has no API rate limit.
 - The version is `appVersionName` in `PipePipeClient/app/build.gradle`. Move it
   by hand, with a new section in `CHANGELOG.md`, when a version is complete.
 - The build number is the commit count, and the version code grows with it, so
@@ -54,6 +59,20 @@ install steps and checksums.
   `PIPETV_KEY_PASSWORD`). Keep a safe copy of it: Android only installs an
   update signed with the same key. A local release build reads it from
   `KEY_PATH`, `KEY_STORE_PASSWORD`, `KEY_ALIAS` and `KEY_PASSWORD`.
+
+## Updates
+
+Only release builds (`prod`) update themselves: debug and `minified` builds have
+other app ids, so release APKs can't install over them. To try the updater,
+build a release that is older than the latest one (uninstall a newer release
+build first, since Android won't install an older build over it):
+
+```sh
+PIPETV_BUILD_NUMBER=400 ./gradlew assembleRelease   # with the KEY_* variables set
+```
+
+The TV home then offers the latest release at its top; Settings, Updates checks
+on demand.
 
 ## README screenshots
 

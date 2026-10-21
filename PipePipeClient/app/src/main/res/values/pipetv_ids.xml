@@ -5,4 +5,7 @@
     <item name="pipetv_no_focus_ring" type="id" />
     <!-- PipeTV: the side rail on TVs (TvNavRail), which the player blocks while it is open. -->
     <item name="pipetv_rail" type="id" />
+    <!-- PipeTV: tag of a view above the TV home's rows (TvRowsScrollView), e.g. the update
+         banner, which the first row keeps in view. -->
+    <item name="pipetv_rows_header" type="id" />
 </resources>

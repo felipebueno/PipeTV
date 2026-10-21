@@ -5,4 +5,22 @@
     <string name="pipetv_recently_watched">Recently watched</string>
     <string name="pipetv_more_like">More like %1$s</string>
     <string name="pipetv_remote_control">Remote control</string>
+    <!-- The updater (update.PipeTvUpdates) -->
+    <string name="pipetv_update_available">Update available: PipeTV %1$s</string>
+    <string name="pipetv_update_title">PipeTV %1$s</string>
+    <string name="pipetv_update_builds">Build %1$d. You have build %2$s.</string>
+    <string name="pipetv_update_whats_new">What\'s new in %1$s</string>
+    <string name="pipetv_update_install">Update</string>
+    <string name="pipetv_update_later">Not now</string>
+    <string name="pipetv_update_starting">Downloading…</string>
+    <string name="pipetv_update_downloading">Downloading: %1$s of %2$s</string>
+    <string name="pipetv_update_failed">Couldn\'t download the update (%1$s).</string>
+    <string name="pipetv_update_retry">Try again</string>
+    <string name="pipetv_update_no_installer">This device has no app installer for the update</string>
+    <string name="pipetv_update_up_to_date">PipeTV is up to date</string>
+    <string name="pipetv_update_check_failed">Couldn\'t check for updates</string>
+    <string name="pipetv_update_notification_title">PipeTV %1$s is available</string>
+    <string name="pipetv_update_notification_text">Tap to update</string>
+    <string name="pipetv_update_auto_title">Look for updates automatically</string>
+    <string name="pipetv_update_auto_summary">Every hour, on PipeTV\'s GitHub releases</string>
 </resources>

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- PipeTV: an update's dialog (update.PipeTvUpdateDialog): what's new, then the download's
+     progress. The notes scroll with the remote once Up gives them the focus. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingStart="24dp"
+    android:paddingTop="8dp"
+    android:paddingEnd="24dp">
+
+    <ScrollView
+        android:id="@+id/pipetvUpdateScroll"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:background="?attr/selectableItemBackground"
+        android:focusable="true"
+        android:scrollbars="vertical">
+
+        <TextView
+            android:id="@+id/pipetvUpdateNotes"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:lineSpacingExtra="2dp"
+            android:textAppearance="?android:attr/textAppearanceSmall" />
+    </ScrollView>
+
+    <ProgressBar
+        android:id="@+id/pipetvUpdateProgress"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:max="1000"
+        android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/pipetvUpdateStatus"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:visibility="gone" />
+
+</LinearLayout>

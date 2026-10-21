@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- PipeTV: the TV home's update banner, a pill like the side rail's current page. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <solid android:color="#26FFFFFF" />
+    <corners android:radius="20dp" />
+</shape>
