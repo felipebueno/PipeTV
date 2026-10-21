@@ -1,217 +1,124 @@
-# PipeTV
+<p align="center">
+  <img src="PipePipeClient/app/src/main/res/mipmap-xhdpi/tv_banner.png" width="320" alt="PipeTV">
+</p>
 
-PipeTV is a fork of [PipePipe](https://github.com/InfinityLoop1308/PipePipe)
-made for TVs: it opens straight to its content, shows clearly where the focus
-is, plays videos in fullscreen and answers the remote the way TV players do.
-It installs next to PipePipe (id `io.github.felipebueno.pipetv`) and keeps
-PipePipe's GPLv3 license.
+<h3 align="center">Videos on your TV, made for the remote</h3>
 
-**First changes (2026-10):**
+<p align="center">
+  No ads, no account, no clutter.<br>
+  A free and open source app for Android TV and Google TV.
+</p>
 
-- No changelog, donation, upstream announcement or update-checker dialogs on
-  start, and no announcement fetch slowing it down.
-- A rounded focus ring (`FocusOverlayView`) that shows on white lists, the
-  red toolbar and the black player alike.
-- Videos open in fullscreen on TVs (the setting still exists; it defaults to
-  on through `values-television`).
-- In the player, Left and Right seek right away and hand the focus to the seek
-  bar, so holding them keeps seeking.
-- PipeTV name and banner.
+<p align="center">
+  <a href="https://github.com/felipebueno/PipeTV/releases/latest"><b>Download</b></a>
+  &nbsp;·&nbsp;
+  <a href="#install">Install</a>
+  &nbsp;·&nbsp;
+  <a href="#using-the-remote">Using the remote</a>
+  &nbsp;·&nbsp;
+  <a href="CHANGELOG.md">What's new</a>
+</p>
 
-**Second round (2026-10):**
+![PipeTV's home: rows of recently watched videos and more like the last of them](docs/screenshots/home.jpg)
 
-- Choosing a video goes straight to the fullscreen player: a black loading
-  cover hides the details page while the stream loads.
-- Back in the player returns to the list, on the video it was opened from.
-- Down in the fullscreen player opens a row of related videos over the video
-  (`TvRelatedRow`): OK plays one, Up goes back to the controls, Back closes it.
-- YouTube links open straight in the player on TVs, without the chooser.
-- No focus ring left over the video once the player controls fade out, and a
-  thinner, softer ring.
+## Why PipeTV
 
-**Third round (2026-10):**
+**Made for the remote.** Left opens the side rail, Up and Down move along it,
+OK goes there. A soft white outline glides to whatever has the focus, so you
+always know where you are.
 
-- As in the TV apps of the big video sites, the player has no way out of
-  fullscreen on TVs (Back closes it), and no touch lock button.
-- Faster video starts on TVs: a link opens the player page right away instead
-  of after its stream loaded, and the YouTube decoder no longer warms up at
-  start, which took 10 to 25 s of a TV stick's CPU right as the first video
-  started.
-- Faster related videos: the extractor compiled a regular expression per
-  phrase for every date of the list, seconds per video on a TV stick; it now
-  compiles each once (`TimeAgoParser`).
-- A stream already loaded once autoplays again after the player was closed.
-- The running version, build and channel (dev or R8) in the bottom right
-  corner.
+**Straight to the video.** Choose a video and it plays fullscreen right away,
+with no page in between. Press Down while it plays and the related videos come
+up over it, as in YouTube's own TV app. Back takes you to where you were.
 
-**Fourth round (2026-10):**
+**A home of rows.** It opens on what you watched recently, more like the last
+of it, what's live and what's new from your subscriptions.
 
-- A side rail takes the place of the toolbar, the drawer and the tab bar, as
-  in the YouTube TV app, so the content gets the whole screen (`TvNavRail`).
-  Left from the content opens it on the current page, with labels over the
-  dimmed content; Up and Down move along it, OK goes there and Right returns
-  to where you were. Back from the home opens it before leaving.
-- On TVs, following the device's theme means the dark theme, and the search,
-  history and settings toolbars blend into it.
-- A softer focus: a white outline with a faint glow that glides from one item
-  to the next, and a subtler highlight inside the cards.
+**Light on small sticks.** Made and measured on a Mi TV Stick with 1 GB of
+memory, where it opens in 2 to 3 seconds.
 
-**Fifth round (2026-10):**
+**Private.** No ads, no account, no tracking. Your subscriptions, history and
+playlists stay on your TV, and SponsorBlock skips sponsored segments.
 
-- A home of rows, first in the side rail (`TvHomeFragment`): recently
-  watched, more like the last of them, the live videos and what's new from
-  the subscriptions. Each row loads on its own, and the focused row comes up
-  to the top of the screen.
-- The focused card grows a little and rises above its neighbors.
-- Search: once the on-screen keyboard is closed (Back), Down goes from the
-  search box to the suggestions, or to the results.
-
-Measured on a Mi TV Stick (1 GB, Android 9):
-
-| | debug | R8 before | R8 now | R8 now, fully compiled |
-|---|---|---|---|---|
-| Cold start to the first screen | 17 s | 2.6 s | 2.7 s | 2.2 s |
-| YouTube link, app closed, to playing | 45 s | 20 s | 17.5 s | 12 s |
-| YouTube link, app open, to playing | | didn't play | 8 s | 7 s |
-
-## Building
-
-The app lives in `PipePipeClient/` and the extractor in `PipePipeExtractor/`,
-both squashed git subtrees of upstream's repositories. The code targets
-Java 25.
-
-```sh
-cd PipePipeClient
-JAVA_HOME=/path/to/jdk-25 ./gradlew assembleDebug
-```
-
-APKs come per ABI; 32-bit TV sticks need `armeabi-v7a`.
-
-For the TV, use the optimized build: `./gradlew assembleMinified` makes the
-release build (R8) signed with the debug key, which installs next to the
-debug one (`.minified`). The debug build runs without ahead-of-time
-compilation and is several times slower on a TV stick.
-
-After `adb install`, Android compiles only the app's start-up code ahead of
-time, and the rest when the device is idle. To get there right away (34 s on a
-Mi TV Stick, and videos start about 5 s sooner):
-
-```sh
-adb shell cmd package compile -m speed -f io.github.felipebueno.pipetv.minified
-```
-
-## Following upstream
-
-`upstream` is PipePipe, `upstream-client` its client repository and
-`upstream-extractor` its extractor. Watch them and bring over what's good for
-TVs:
-
-```sh
-git fetch upstream-client
-git log --oneline upstream-client/dev          # what's new upstream
-git cherry-pick -X subtree=PipePipeClient <commit>
-git subtree pull --prefix=PipePipeClient upstream-client <tag> --squash   # a whole release
-
-git fetch upstream-extractor                   # the same for the extractor
-git cherry-pick -X subtree=PipePipeExtractor <commit>
-git subtree pull --prefix=PipePipeExtractor upstream-extractor main --squash
-```
-
-Upstream's README follows.
-
-<hr>
-<p align="center"><img src="assets/logo.png" width="150"></p> 
-<h2 align="center"><b>PipePipe</b></h2>
-<h4 align="center">
-NewPipe, reimagined: faster, more stable, and packed with more features.</h4>
-<p align="center"><a href="https://f-droid.org/packages/InfinityLoop1309.NewPipeEnhanced/"><img src="https://fdroid.gitlab.io/artwork/badge/get-it-on.png" alt="Get it on F-Droid"  width="207" /></a>
-<a href="https://apt.izzysoft.de/fdroid/index/apk/InfinityLoop1309.NewPipeEnhanced"><img src="assets/IzzyOnDroid.png" alt="Get it on IzzyOnDroid" width="207" /></a></p>
-<hr>
-
-## Beyond NewPipe
-
-#### YouTube Enhancements
-* Integrate SponsorBlock for skipping sponsored segments (YouTube & BiliBili) 
-* Restore YouTube dislikes with ReturnYouTubeDislike 
-* Show original titles on YouTube (non-localized) 
-* Log in to access restricted or premium content 
-
-#### Media Features
-* Display live chats in danmaku-style overlays
-* Support AV1 and VP9 codecs for efficient, high-quality playback 
-* Enable music player mode with background playback 
-
-#### Filtering
-* Apply advanced search filters for better discovery 
-* Filter out unwanted items by keywords or channels 
-* Block shorts and paid videos for a cleaner feed 
-
-#### Playback Controls
-* Use swipe-to-seek and fullscreen gestures for intuitive navigation 
-* Long-press to speed up playback 
-* Set a sleep timer for bedtime listening 
-
-#### Enhanced Playlists
-* Download full playlists at once 
-* Search and sort within local playlists and histories
-
-... and many more improvements!
-
+**Yours to tune.** Hide shorts, paid and upcoming videos, filter out keywords
+or channels, choose how far Left and Right seek, or turn on DeArrow for
+crowdsourced titles and thumbnails.
 
 ## Screenshots
 
-[<img src="fastlane/metadata/android/en-US/images/phoneScreenshots/00-v2.png" width=640>](fastlane/metadata/android/en-US/images/phoneScreenshots/00-v1.png)
+<table>
+  <tr>
+    <td width="50%"><img src="docs/screenshots/player.jpg" alt="The related videos over a playing video"></td>
+    <td width="50%"><img src="docs/screenshots/rail.jpg" alt="The side rail open over the home"></td>
+  </tr>
+  <tr>
+    <td align="center">Down in the player brings up the related videos</td>
+    <td align="center">Left opens the side rail</td>
+  </tr>
+  <tr>
+    <td width="50%"><img src="docs/screenshots/search.jpg" alt="Search results"></td>
+    <td width="50%"><img src="docs/screenshots/focus.gif" alt="The focus gliding from card to card"></td>
+  </tr>
+  <tr>
+    <td align="center">Search</td>
+    <td align="center">The focus glides from card to card</td>
+  </tr>
+</table>
 
-[<img src="fastlane/metadata/android/en-US/images/phoneScreenshots/01-v3.png" width=160>](fastlane/metadata/android/en-US/images/phoneScreenshots/01-v3.png)
-[<img src="fastlane/metadata/android/en-US/images/phoneScreenshots/02-v3.png" width=160>](fastlane/metadata/android/en-US/images/phoneScreenshots/02-v3.png)
-[<img src="fastlane/metadata/android/en-US/images/phoneScreenshots/03-v3.png" width=160>](fastlane/metadata/android/en-US/images/phoneScreenshots/03-v3.png)
-[<img src="fastlane/metadata/android/en-US/images/phoneScreenshots/04-v3.png" width=160>](fastlane/metadata/android/en-US/images/phoneScreenshots/04-v3.png)
-<br/>
-[<img src="fastlane/metadata/android/en-US/images/phoneScreenshots/05-v3.png" width=160>](fastlane/metadata/android/en-US/images/phoneScreenshots/05-v3.png)
-[<img src="fastlane/metadata/android/en-US/images/phoneScreenshots/06-v3.png" width=160>](fastlane/metadata/android/en-US/images/phoneScreenshots/06-v3.png)
-[<img src="fastlane/metadata/android/en-US/images/phoneScreenshots/07-v3.png" width=160>](fastlane/metadata/android/en-US/images/phoneScreenshots/07-v3.png)
-[<img src="fastlane/metadata/android/en-US/images/phoneScreenshots/08-v3.png" width=160>](fastlane/metadata/android/en-US/images/phoneScreenshots/08-v3.png)
-<br/>
-[<img src="fastlane/metadata/android/en-US/images/phoneScreenshots/09-v3.png" width=160>](fastlane/metadata/android/en-US/images/phoneScreenshots/09-v3.png)
-[<img src="fastlane/metadata/android/en-US/images/phoneScreenshots/10-v3.png" width=160>](fastlane/metadata/android/en-US/images/phoneScreenshots/10-v3.png)
-[<img src="fastlane/metadata/android/en-US/images/phoneScreenshots/11-v3.png" width=160>](fastlane/metadata/android/en-US/images/phoneScreenshots/11-v3.png)
-[<img src="fastlane/metadata/android/en-US/images/phoneScreenshots/12-v3.png" width=160>](fastlane/metadata/android/en-US/images/phoneScreenshots/12-v3.png)
+The videos in the screenshots are [Blender's open movies](https://studio.blender.org/films/)
+(CC BY, Blender Foundation).
 
+## Install
 
-## About this fork
+PipeTV runs on TVs, sticks and boxes with Android TV or Google TV, Android 6.0
+or newer.
 
-Due to differences in development philosophy, I forked NewPipe in early 2022 and began independent development based on it.
+1. Download the APK for your device from the
+   [latest release](https://github.com/felipebueno/PipeTV/releases/latest).
+   Not sure which? `PipeTV-armeabi-v7a.apk` runs on nearly all of them.
+2. Get it onto the TV, whichever way is easiest for you:
+   - With the [Downloader](https://play.google.com/store/apps/details?id=com.esaba.downloader)
+     app on the TV, open
+     `https://github.com/felipebueno/PipeTV/releases/latest/download/PipeTV-armeabi-v7a.apk`
+   - From a computer on the same network, with
+     [adb](https://developer.android.com/tools/adb) and the TV's developer
+     options on: `adb connect <the TV's IP address>`, then
+     `adb install PipeTV-armeabi-v7a.apk`
+   - On a USB drive, opened with a file manager on the TV
+3. When the TV asks, allow that app to install unknown apps.
 
-This means that PipePipe neither receives updates from NewPipe nor pushes updates to NewPipe. They have become two separate projects. Issues that occur in NewPipe don't necessarily happen in PipePipe, and changes made in NewPipe may not be adopted by PipePipe. In contrast, forks like Tubular track the latest version of NewPipe and develop based on it.
+To update, install the newest release the same way. It installs over the one
+you have and keeps your history and subscriptions. PipeTV installs next to
+YouTube and PipePipe, without replacing them.
 
-Making a hard fork allows us to effectively address issues with quick fixes and maintain frequent feature updates.
+## Using the remote
 
-## About sign in
+| Where | Press | What happens |
+|---|---|---|
+| A row or list | Left, from its first item | The side rail opens |
+| Side rail | Up, Down, then OK | Go to Search, Home, your tabs, History or Settings |
+| Side rail | Right | Back to where you were |
+| Home | Back | The side rail opens, and Back again leaves |
+| Player | Left, Right | Seek right away; hold to keep seeking |
+| Player | Down | The related videos come up: OK plays one, Up or Back hides them |
+| Player | Back | The player closes, and you're back on the video you chose |
+| Search | Back, then Down | The keyboard closes, and Down goes to the suggestions or results |
 
-PipePipe will ONLY use the login cookie for the specified scenarios you set. You can configure it in "Cookie Functions."
+How far Left and Right seek is under Settings, Remote control.
 
-For YouTube, the cookie will only be used when retrieving playback streams.
+## Built on PipePipe
 
-## Contribute
+PipeTV is a fork of [PipePipe](https://github.com/InfinityLoop1308/PipePipe),
+which grew out of [NewPipe](https://github.com/TeamNewPipe/NewPipe). They do
+the hard work of talking to YouTube; PipeTV reshapes the app for the TV and
+keeps up with their updates. On a phone or tablet, PipeTV behaves like
+PipePipe.
 
-Issues and PRs are welcomed. Please note that I will **NOT** accept service requests. 
+[CHANGELOG.md](CHANGELOG.md) lists what PipeTV has changed, and
+[docs/DEVELOPMENT.md](docs/DEVELOPMENT.md) explains how to build it, how
+releases are made and how upstream changes come in.
 
-Anyone interested in creating their own service is encouraged to fork this repository.
+## License
 
-## Donation
-
-If you find PipePipe useful, please consider becoming a supporter on Ko-Fi. Your support is important to me and helps me add more exciting new features. Every bit counts! 😇
-
-Liberapay: https://liberapay.com/PipePipe
-
-Ko-fi: https://ko-fi.com/pipepipe
-
-## Community
-
-[PipePipe Wiki](https://priveetee.github.io/Docs-PipePipe) maintained by [@Priveetee](https://github.com/Priveetee)
-
-## Special Thanks
-
-[Priveetee](https://github.com/Priveetee) for [researching SABR](https://priveetee.github.io/Docs-PipePipe/developer-guide/introduction.html) and implementing support for it.
-
-[AioiLight](https://github.com/AioiLight) for providing some code of NicoNico service.
+PipeTV is free software under the [GNU General Public License v3.0](LICENSE),
+like PipePipe and NewPipe. It isn't affiliated with YouTube or Google.
