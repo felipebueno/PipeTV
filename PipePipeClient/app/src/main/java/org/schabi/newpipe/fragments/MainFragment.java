@@ -40,6 +40,7 @@ import org.schabi.newpipe.extractor.exceptions.ExtractionException;
 import org.schabi.newpipe.fragments.list.search.SearchFragment;
 import org.schabi.newpipe.settings.tabs.Tab;
 import org.schabi.newpipe.settings.tabs.TabsManager;
+import org.schabi.newpipe.util.DeviceUtils;
 import org.schabi.newpipe.util.NavigationHelper;
 import org.schabi.newpipe.util.ServiceHelper;
 import org.schabi.newpipe.util.ThemeHelper;
@@ -119,6 +120,22 @@ public class MainFragment extends BaseFragment
 
         setupTabs();
         updateTabLayoutPosition();
+        // PipeTV: on TVs the side rail switches the tabs, so the tab bar would only take room
+        if (DeviceUtils.isTv(requireContext())) {
+            binding.mainTabLayout.setVisibility(View.GONE);
+        }
+    }
+
+    /** PipeTV: shows the given tab, as the side rail asks on TVs. */
+    public void selectTab(final int position) {
+        if (binding != null && position >= 0 && position < tabsList.size()) {
+            binding.pager.setCurrentItem(position, false);
+            updateTitleForTab(position);
+        }
+    }
+
+    public int getCurrentTabIndex() {
+        return binding == null ? 0 : binding.pager.getCurrentItem();
     }
 
     @Override

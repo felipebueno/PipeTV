@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- PipeTV: the focused item of the open side rail. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <solid android:color="#FFF1F1F1" />
+    <corners android:radius="24dp" />
+</shape>

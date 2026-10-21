@@ -292,6 +292,11 @@ public final class ThemeHelper {
      * @return true:dark theme, false:light or unknown
      */
     public static boolean isDeviceDarkThemeEnabled(final Context context) {
+        // PipeTV: a TV is watched in a dim room and seldom says it is in night mode, so
+        // following the device means the dark theme there, as in the TV apps
+        if (DeviceUtils.isTv(context)) {
+            return true;
+        }
         final int deviceTheme = context.getResources().getConfiguration().uiMode
                 & Configuration.UI_MODE_NIGHT_MASK;
         switch (deviceTheme) {
@@ -317,7 +322,9 @@ public final class ThemeHelper {
                 || selectedThemeKey.equals(res.getString(R.string.black_theme_key))) {
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
         } else {
-            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
+            AppCompatDelegate.setDefaultNightMode(DeviceUtils.isTv(context)
+                    ? AppCompatDelegate.MODE_NIGHT_YES // see isDeviceDarkThemeEnabled()
+                    : AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
         }
     }
 

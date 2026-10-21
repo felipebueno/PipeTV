@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- PipeTV: the open side rail's panel, almost opaque so its items read over any content. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <gradient
+        android:angle="0"
+        android:centerColor="#F2141414"
+        android:endColor="#E6141414"
+        android:startColor="#FA141414" />
+</shape>

@@ -44,6 +44,18 @@ PipePipe's GPLv3 license.
 - The running version, build and channel (dev or R8) in the bottom right
   corner.
 
+**Fourth round (2026-10):**
+
+- A side rail takes the place of the toolbar, the drawer and the tab bar, as
+  in the YouTube TV app, so the content gets the whole screen (`TvNavRail`).
+  Left from the content opens it on the current page, with labels over the
+  dimmed content; Up and Down move along it, OK goes there and Right returns
+  to where you were. Back from the home opens it before leaving.
+- On TVs, following the device's theme means the dark theme, and the search,
+  history and settings toolbars blend into it.
+- A softer focus: a white outline with a faint glow that glides from one item
+  to the next, and a subtler highlight inside the cards.
+
 Measured on a Mi TV Stick (1 GB, Android 9):
 
 | | debug | R8 before | R8 now | R8 now, fully compiled |

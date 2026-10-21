@@ -18,6 +18,7 @@
  */
 package org.schabi.newpipe.views;
 
+import android.animation.ValueAnimator;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
@@ -38,6 +39,7 @@ import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.view.ViewTreeObserver;
 import android.view.Window;
+import android.view.animation.DecelerateInterpolator;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -46,6 +48,7 @@ import androidx.appcompat.view.WindowCallbackWrapper;
 import androidx.core.content.ContextCompat;
 
 import org.schabi.newpipe.R;
+import org.schabi.newpipe.util.ThemeHelper;
 
 import java.lang.ref.WeakReference;
 
@@ -70,25 +73,55 @@ public final class FocusOverlayView extends Drawable implements
 
     private WeakReference<View> focused;
 
-    // PipeTV: a ring that can be seen from the couch on light and dark screens alike,
-    // drawn just outside the focused view so it doesn't cover its content.
-    private final Paint haloPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    // PipeTV: a soft white ring with a faint glow, drawn just outside the focused view so it
+    // doesn't cover its content. It glides from the last focus to the new one, and fades in
+    // where the focus appears; both only redraw this overlay, never the views.
+    private static final long GLIDE_MS = 160;
+    private static final long FADE_IN_MS = 120;
+    private final Paint glowPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    private final int glowAlpha;
     private final RectF ringRect = new RectF();
+    private final RectF shownRect = new RectF();
+    private final RectF glideFrom = new RectF();
+    private final ValueAnimator glide = ValueAnimator.ofFloat(0f, 1f);
+    private final ValueAnimator fadeIn = ValueAnimator.ofFloat(0f, 1f);
+    @Nullable
+    private WeakReference<View> ringOn;
     private final float ringGap;
     private final float ringRadius;
+    private final float glowWidth;
 
     public FocusOverlayView(final Context context) {
         final float density = context.getResources().getDisplayMetrics().density;
         final float ringWidth = 2 * density;
         ringGap = 3 * density;
         ringRadius = 12 * density;
+        glowWidth = 2 * density;
         rectPaint.setAntiAlias(true);
         rectPaint.setStyle(Paint.Style.STROKE);
         rectPaint.setStrokeWidth(ringWidth);
-        rectPaint.setColor(ContextCompat.getColor(context, R.color.tv_focus_ring));
-        haloPaint.setStyle(Paint.Style.STROKE);
-        haloPaint.setStrokeWidth(ringWidth + 2 * density);
-        haloPaint.setColor(ContextCompat.getColor(context, R.color.tv_focus_halo));
+        // White on the dark themes TVs use; dark if someone picks the light theme there
+        final boolean light = ThemeHelper.isLightThemeSelected(context);
+        rectPaint.setColor(light ? 0xDD000000
+                : ContextCompat.getColor(context, R.color.tv_focus_ring));
+        glowPaint.setStyle(Paint.Style.STROKE);
+        glowPaint.setStrokeWidth(glowWidth);
+        glowPaint.setColor(light ? 0x33000000
+                : ContextCompat.getColor(context, R.color.tv_focus_halo));
+        glowAlpha = glowPaint.getAlpha();
+
+        glide.setDuration(GLIDE_MS);
+        glide.setInterpolator(new DecelerateInterpolator(2f));
+        glide.addUpdateListener(animation -> {
+            final float t = (float) animation.getAnimatedValue();
+            shownRect.set(glideFrom.left + (focusRect.left - glideFrom.left) * t,
+                    glideFrom.top + (focusRect.top - glideFrom.top) * t,
+                    glideFrom.right + (focusRect.right - glideFrom.right) * t,
+                    glideFrom.bottom + (focusRect.bottom - glideFrom.bottom) * t);
+            invalidateSelf();
+        });
+        fadeIn.setDuration(FADE_IN_MS);
+        fadeIn.addUpdateListener(animation -> invalidateSelf());
     }
 
     @Override
@@ -121,6 +154,27 @@ public final class FocusOverlayView extends Drawable implements
 
         if (shouldClearFocusRect(focusedView, focusRect)) {
             focusRect.setEmpty();
+        }
+
+        final View ringView = ringOn == null ? null : ringOn.get();
+        if (focusRect.isEmpty()) {
+            glide.cancel();
+            fadeIn.cancel();
+            shownRect.setEmpty();
+            ringOn = null;
+        } else if (shownRect.isEmpty()) {
+            // Fades in where the focus appears
+            shownRect.set(focusRect);
+            ringOn = new WeakReference<>(focusedView);
+            fadeIn.start();
+        } else if (focusedView != ringView) {
+            // Glides from the last focus to the new one, even from the middle of a glide
+            glideFrom.set(shownRect);
+            ringOn = new WeakReference<>(focusedView);
+            glide.start();
+        } else if (!glide.isRunning()) {
+            // The same view moved, e.g. scrolled: the ring follows it at once
+            shownRect.set(focusRect);
         }
 
         if (l != focusRect.left || r != focusRect.right
@@ -185,12 +239,22 @@ public final class FocusOverlayView extends Drawable implements
 
     @Override
     public void draw(@NonNull final Canvas canvas) {
-        if (!isInTouchMode && focusRect.width() != 0) {
-            ringRect.set(focusRect);
-            ringRect.inset(-ringGap, -ringGap);
-            canvas.drawRoundRect(ringRect, ringRadius, ringRadius, haloPaint);
-            canvas.drawRoundRect(ringRect, ringRadius, ringRadius, rectPaint);
+        if (isInTouchMode || shownRect.isEmpty()) {
+            return;
         }
+        final float alpha = fadeIn.isRunning() ? (float) fadeIn.getAnimatedValue() : 1f;
+        rectPaint.setAlpha(Math.round(255 * alpha));
+        ringRect.set(shownRect);
+        ringRect.inset(-ringGap, -ringGap);
+        canvas.drawRoundRect(ringRect, ringRadius, ringRadius, rectPaint);
+        // The glow: two faint strokes around the ring, the outer one fainter
+        glowPaint.setAlpha(Math.round(glowAlpha * alpha));
+        ringRect.inset(-glowWidth, -glowWidth);
+        canvas.drawRoundRect(ringRect, ringRadius + glowWidth, ringRadius + glowWidth, glowPaint);
+        glowPaint.setAlpha(Math.round(glowAlpha * alpha / 3));
+        ringRect.inset(-glowWidth, -glowWidth);
+        canvas.drawRoundRect(ringRect, ringRadius + 2 * glowWidth, ringRadius + 2 * glowWidth,
+                glowPaint);
     }
 
     @Override
@@ -214,8 +278,10 @@ public final class FocusOverlayView extends Drawable implements
      * */
     private boolean shouldClearFocusRect(@Nullable final View focusedView, final Rect focusedRect) {
         return focusedView == null || focusedRect.equals(getBounds())
-                // PipeTV: a window can turn the ring off, e.g. while a cover hides its content
-                || focusedView.getRootView().getTag(R.id.pipetv_no_focus_ring) != null;
+                // PipeTV: a window can turn the ring off, e.g. while a cover hides its content,
+                // and so can a view with a focus look of its own
+                || focusedView.getRootView().getTag(R.id.pipetv_no_focus_ring) != null
+                || focusedView.getTag(R.id.pipetv_no_focus_ring) != null;
     }
 
     public static void setupFocusObserver(final Dialog dialog) {

@@ -120,6 +120,9 @@ public class SettingsActivity extends AppCompatActivity implements
 
         if (DeviceUtils.isTv(this)) {
             FocusOverlayView.setupFocusObserver(this);
+            // PipeTV: as on the main screen, the toolbar blends into the dark screen on TVs
+            settingsLayoutBinding.settingsToolbarLayout.toolbar
+                    .setBackgroundColor(android.graphics.Color.TRANSPARENT);
         }
     }
 

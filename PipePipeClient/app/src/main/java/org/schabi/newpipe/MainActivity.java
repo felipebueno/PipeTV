@@ -33,6 +33,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.StrictMode;
 import android.util.Log;
+import android.graphics.Color;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -42,6 +43,7 @@ import android.view.ViewGroup;
 import android.widget.*;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
@@ -70,6 +72,9 @@ import org.schabi.newpipe.fragments.MainFragment;
 import org.schabi.newpipe.fragments.detail.VideoDetailFragment;
 import org.schabi.newpipe.fragments.list.search.SearchFragment;
 import org.schabi.newpipe.local.feed.notifications.NotificationWorker;
+import org.schabi.newpipe.local.history.StatisticsPlaylistFragment;
+import org.schabi.newpipe.settings.tabs.Tab;
+import org.schabi.newpipe.settings.tabs.TabsManager;
 import org.schabi.newpipe.player.Player;
 import org.schabi.newpipe.player.PlayerIntentConstants;
 import org.schabi.newpipe.player.event.OnKeyDownListener;
@@ -79,6 +84,7 @@ import org.schabi.newpipe.util.selection.SelectionToolbar;
 import org.schabi.newpipe.util.*;
 import org.schabi.newpipe.util.external_communication.ShareUtils;
 import org.schabi.newpipe.views.FocusOverlayView;
+import org.schabi.newpipe.views.TvNavRail;
 
 import java.io.IOException;
 import java.security.SecureRandom;
@@ -86,6 +92,7 @@ import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -172,6 +179,7 @@ public class MainActivity extends AppCompatActivity {
             mainBinding.pipetvBuildLabel.setText("v" + BuildConfig.VERSION_NAME
                     + " · build " + BuildConfig.PIPETV_BUILD + " · " + BuildConfig.PIPETV_CHANNEL);
             mainBinding.pipetvBuildLabel.setVisibility(View.VISIBLE);
+            setUpTvRail();
         }
         openMiniPlayerUponPlayerStarted();
 
@@ -201,6 +209,128 @@ public class MainActivity extends AppCompatActivity {
             prefs.edit().putInt("isFirstRun", 1).apply();
             PermissionChecker.checkNotificationPermission(this);
         }
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
+    // PipeTV: the side rail of TVs
+    //////////////////////////////////////////////////////////////////////////*/
+
+    private static final String RAIL_SEARCH = "search";
+    private static final String RAIL_TAB = "tab:";
+    private static final String RAIL_HISTORY = "history";
+    private static final String RAIL_SETTINGS = "settings";
+
+    /**
+     * On TVs the side rail takes the place of the toolbar, the drawer and the main tabs, so the
+     * content gets the whole screen. The toolbar only comes back for the pages that use it.
+     */
+    @Nullable
+    private TvNavRail tvRail;
+    private int fragmentHolderTopMargin;
+
+    private void setUpTvRail() {
+        tvRail = new TvNavRail(this);
+        final ViewGroup coordinator = (ViewGroup) mainBinding.fragmentPlayerHolder.getParent();
+        // Under the player, which covers it and blocks its focus while open
+        coordinator.addView(tvRail, coordinator.indexOfChild(mainBinding.fragmentPlayerHolder),
+                new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.MATCH_PARENT));
+        mainBinding.getRoot().setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+
+        final ViewGroup.MarginLayoutParams holderParams =
+                (ViewGroup.MarginLayoutParams) mainBinding.fragmentHolder.getLayoutParams();
+        fragmentHolderTopMargin = holderParams.topMargin;
+        holderParams.setMarginStart(tvRail.getCollapsedWidth());
+        ((ViewGroup.MarginLayoutParams) toolbarLayoutBinding.getRoot().getLayoutParams())
+                .setMarginStart(tvRail.getCollapsedWidth());
+        // The toolbar blends into the dark screen instead of being a red bar
+        toolbarLayoutBinding.toolbar.setBackgroundColor(Color.TRANSPARENT);
+
+        tvRail.setListener(this::onTvRailItemChosen);
+        updateTvRailItems();
+        getSupportFragmentManager().addOnBackStackChangedListener(this::syncTvRail);
+        mainBinding.fragmentHolder.post(this::syncTvRail);
+    }
+
+    private void updateTvRailItems() {
+        final List<TvNavRail.Item> top = new ArrayList<>();
+        top.add(new TvNavRail.Item(RAIL_SEARCH, R.drawable.ic_search,
+                getString(R.string.search)));
+        final List<Tab> tabs = TabsManager.getManager(this).getTabs();
+        for (int i = 0; i < tabs.size(); i++) {
+            top.add(new TvNavRail.Item(RAIL_TAB + i, tabs.get(i).getTabIconRes(this),
+                    tabs.get(i).getTabName(this)));
+        }
+        top.add(new TvNavRail.Item(RAIL_HISTORY, R.drawable.ic_history,
+                getString(R.string.action_history)));
+        tvRail.setItems(top, Collections.singletonList(new TvNavRail.Item(RAIL_SETTINGS,
+                R.drawable.ic_settings, getString(R.string.settings))));
+        syncTvRail();
+    }
+
+    /** Shows or hides the toolbar for the page on screen, and marks its item in the rail. */
+    private void syncTvRail() {
+        if (tvRail == null) {
+            return;
+        }
+        final Fragment fragment = getSupportFragmentManager()
+                .findFragmentById(R.id.fragment_holder);
+        final boolean onMain = fragment instanceof MainFragment;
+        toolbarLayoutBinding.getRoot().setVisibility(onMain ? View.GONE : View.VISIBLE);
+        final ViewGroup.MarginLayoutParams holderParams =
+                (ViewGroup.MarginLayoutParams) mainBinding.fragmentHolder.getLayoutParams();
+        // Without the toolbar, the home keeps a little room at the top of the screen
+        final int topMargin = onMain
+                ? Math.round(24 * getResources().getDisplayMetrics().density)
+                : fragmentHolderTopMargin;
+        if (holderParams.topMargin != topMargin) {
+            holderParams.topMargin = topMargin;
+            mainBinding.fragmentHolder.requestLayout();
+        }
+        if (onMain) {
+            tvRail.setSelectedKey(RAIL_TAB + ((MainFragment) fragment).getCurrentTabIndex());
+        } else if (fragment instanceof SearchFragment) {
+            tvRail.setSelectedKey(RAIL_SEARCH);
+        } else if (fragment instanceof StatisticsPlaylistFragment) {
+            tvRail.setSelectedKey(RAIL_HISTORY);
+        } else {
+            tvRail.setSelectedKey(null);
+        }
+    }
+
+    private void onTvRailItemChosen(@NonNull final String key) {
+        final FragmentManager fm = getSupportFragmentManager();
+        final Fragment current = fm.findFragmentById(R.id.fragment_holder);
+        if (RAIL_SETTINGS.equals(key)) {
+            NavigationHelper.openSettings(this);
+            return;
+        }
+        if (RAIL_SEARCH.equals(key)) {
+            if (!(current instanceof SearchFragment)
+                    && !NavigationHelper.tryGotoSearchFragment(fm)) {
+                final int serviceId = ServiceHelper.getSelectedServiceId(this);
+                NavigationHelper.openSearchFragment(fm,
+                        SearchFragment.getPersistedSearchServiceId(this, serviceId), "");
+            }
+            // The search box takes the focus itself
+            return;
+        }
+        if (RAIL_HISTORY.equals(key)) {
+            if (!(current instanceof StatisticsPlaylistFragment)) {
+                NavigationHelper.openStatisticFragment(fm);
+            }
+        } else if (key.startsWith(RAIL_TAB)) {
+            NavigationHelper.gotoMainFragment(fm);
+            fm.executePendingTransactions();
+            final Fragment main = fm.findFragmentById(R.id.fragment_holder);
+            if (main instanceof MainFragment) {
+                ((MainFragment) main).selectTab(
+                        Integer.parseInt(key.substring(RAIL_TAB.length())));
+            }
+        }
+        syncTvRail();
+        // Into the chosen page, once it is on screen
+        mainBinding.fragmentHolder.post(() -> mainBinding.fragmentHolder.requestFocus());
     }
 
     private void setupDrawer() throws ExtractionException {
@@ -481,6 +611,9 @@ public class MainActivity extends AppCompatActivity {
         // Close drawer on return, and don't show animation,
         // so it looks like the drawer isn't open when the user returns to MainActivity
         mainBinding.getRoot().closeDrawer(GravityCompat.START, false);
+        if (tvRail != null) {
+            updateTvRailItems(); // the main tabs may have changed in the settings
+        }
         try {
             final int selectedServiceId = ServiceHelper.getSelectedServiceId(this);
             final String selectedServiceName = NewPipe.getService(selectedServiceId)
@@ -598,6 +731,13 @@ public class MainActivity extends AppCompatActivity {
                 }
                 return;
             }
+        }
+
+        // PipeTV: as in the TV apps, Back from the home goes to the side rail before leaving
+        if (tvRail != null && !tvRail.hasFocus()
+                && getSupportFragmentManager().getBackStackEntryCount() == 1) {
+            tvRail.focusSelected();
+            return;
         }
 
         final SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);

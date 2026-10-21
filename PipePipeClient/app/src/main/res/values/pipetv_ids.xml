@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- PipeTV: tag on a window's root view that keeps FocusOverlayView from drawing its focus
-         ring there, e.g. while the loading cover hides the page and the focus underneath. -->
+    <!-- PipeTV: tag that keeps FocusOverlayView from drawing its focus ring, on a window's root
+         view (e.g. while the loading cover hides the page) or on a view with its own focus look. -->
     <item name="pipetv_no_focus_ring" type="id" />
+    <!-- PipeTV: the side rail on TVs (TvNavRail), which the player blocks while it is open. -->
+    <item name="pipetv_rail" type="id" />
 </resources>

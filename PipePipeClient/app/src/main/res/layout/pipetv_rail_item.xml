@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- PipeTV: an item of the side rail on TVs (TvNavRail). The icon sits in the collapsed rail's
+     column; the label only shows while the rail is open. -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="48dp"
+    android:layout_marginHorizontal="12dp"
+    android:layout_marginVertical="2dp"
+    android:clickable="true"
+    android:focusable="true">
+
+    <ImageView
+        android:id="@+id/pipetvRailIcon"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_gravity="center_vertical"
+        android:layout_marginStart="4dp"
+        android:importantForAccessibility="no"
+        android:padding="8dp"
+        android:scaleType="fitCenter" />
+
+    <TextView
+        android:id="@+id/pipetvRailLabel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:layout_marginStart="56dp"
+        android:layout_marginEnd="12dp"
+        android:alpha="0"
+        android:ellipsize="end"
+        android:fontFamily="sans-serif-medium"
+        android:maxLines="1"
+        android:textSize="15sp" />
+
+</FrameLayout>

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- PipeTV: on TVs the focus ring shows the focus, so the focused card's own highlight (and
+         the press ripple) can be softer. -->
+    <color name="dark_ripple_color">#24FFFFFF</color>
+</resources>

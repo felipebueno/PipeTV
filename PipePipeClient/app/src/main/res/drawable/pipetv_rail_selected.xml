@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- PipeTV: the side rail's current page, behind its item while the rail is open and behind
+     its icon while it is closed. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <solid android:color="#26FFFFFF" />
+    <corners android:radius="24dp" />
+</shape>

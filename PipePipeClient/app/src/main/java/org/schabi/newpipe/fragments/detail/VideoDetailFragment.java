@@ -2771,6 +2771,13 @@ public final class VideoDetailFragment
         final Toolbar toolbar = requireActivity().findViewById(R.id.toolbar);
         final int afterDescendants = ViewGroup.FOCUS_AFTER_DESCENDANTS;
         final int blockDescendants = ViewGroup.FOCUS_BLOCK_DESCENDANTS;
+        // PipeTV: the side rail of TVs goes with the main fragment, so the open player's Left
+        // never reaches it
+        final View rail = requireActivity().findViewById(R.id.pipetv_rail);
+        if (rail instanceof ViewGroup) {
+            ((ViewGroup) rail).setDescendantFocusability(
+                    toMain ? afterDescendants : blockDescendants);
+        }
         if (toMain) {
             mainFragment.setDescendantFocusability(afterDescendants);
             toolbar.setDescendantFocusability(afterDescendants);
