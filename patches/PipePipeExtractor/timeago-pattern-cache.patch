@@ -1,0 +1,37 @@
+diff --git a/extractor/src/main/java/org/schabi/newpipe/extractor/localization/TimeAgoParser.java b/extractor/src/main/java/org/schabi/newpipe/extractor/localization/TimeAgoParser.java
+index 5928bc3..cb9cc62 100644
+--- a/extractor/src/main/java/org/schabi/newpipe/extractor/localization/TimeAgoParser.java
++++ b/extractor/src/main/java/org/schabi/newpipe/extractor/localization/TimeAgoParser.java
+@@ -8,6 +8,7 @@ import java.time.OffsetDateTime;
+ import java.time.ZoneOffset;
+ import java.time.temporal.ChronoUnit;
+ import java.util.Map;
++import java.util.concurrent.ConcurrentHashMap;
+ import java.util.regex.Pattern;
+ 
+ /**
+@@ -15,6 +16,10 @@ import java.util.regex.Pattern;
+  * format '2 days ago' or similar.
+  */
+ public class TimeAgoParser {
++    // PipeTV: each phrase's pattern is compiled once. Compiling them for every date of a list
++    // took most of the time of a video's related items, seconds on a TV stick.
++    private static final Map<String, Pattern> PHRASE_PATTERNS = new ConcurrentHashMap<>();
++
+     private final PatternsHolder patternsHolder;
+     private final OffsetDateTime now;
+ 
+@@ -113,7 +118,12 @@ public class TimeAgoParser {
+         final String pattern =
+                 "(^|" + escapedSeparator + ")" + escapedPhrase + "($|" + escapedSeparator + ")";
+ 
+-        return Parser.isMatch(pattern, textualDate.toLowerCase());
++        Pattern compiled = PHRASE_PATTERNS.get(pattern);
++        if (compiled == null) {
++            compiled = Pattern.compile(pattern);
++            PHRASE_PATTERNS.put(pattern, compiled);
++        }
++        return Parser.isMatch(compiled, textualDate.toLowerCase());
+     }
+ 
+     private DateWrapper getResultFor(final int timeAgoAmount, final ChronoUnit chronoUnit) {

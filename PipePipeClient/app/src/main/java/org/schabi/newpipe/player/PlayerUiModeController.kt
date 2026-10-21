@@ -246,8 +246,11 @@ class PlayerUiModeController(private val player: Player) {
 
     fun setupScreenRotationButton() {
         val binding = player.binding
+        // PipeTV: as in the TV apps of the big video sites, a TV has no way out of fullscreen:
+        // the player is the page there, and Back closes it.
         binding.screenRotationButton.visibility =
-            if (player.videoPlayerSelected()) View.VISIBLE else View.GONE
+            if (player.videoPlayerSelected() && !(isFullscreen && DeviceUtils.isTv(player.context)))
+                View.VISIBLE else View.GONE
         if (!player.videoPlayerSelected() || !isFullscreen) {
             binding.lockButton.visibility = View.GONE
         }

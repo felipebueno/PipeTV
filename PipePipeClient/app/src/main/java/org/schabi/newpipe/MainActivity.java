@@ -98,7 +98,9 @@ import javax.net.ssl.X509TrustManager;
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
     @SuppressWarnings("ConstantConditions")
-    public static final boolean DEBUG = !BuildConfig.BUILD_TYPE.equals("release");
+    // PipeTV: the minified build is the release build signed for testing, so it doesn't log either
+    public static final boolean DEBUG = !BuildConfig.BUILD_TYPE.equals("release")
+            && !BuildConfig.BUILD_TYPE.equals("minified");
 
     private ActivityMainBinding mainBinding;
     private DrawerHeaderBinding drawerHeaderBinding;
@@ -166,6 +168,10 @@ public class MainActivity extends AppCompatActivity {
         }
         if (DeviceUtils.isTv(this)) {
             FocusOverlayView.setupFocusObserver(this);
+            // PipeTV: the running version, build and channel, small in the bottom right corner
+            mainBinding.pipetvBuildLabel.setText("v" + BuildConfig.VERSION_NAME
+                    + " · build " + BuildConfig.PIPETV_BUILD + " · " + BuildConfig.PIPETV_CHANNEL);
+            mainBinding.pipetvBuildLabel.setVisibility(View.VISIBLE);
         }
         openMiniPlayerUponPlayerStarted();
 

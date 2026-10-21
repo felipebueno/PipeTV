@@ -23,6 +23,21 @@
             layout="@layout/selection_toolbar"
             android:id="@+id/selection_toolbar" />
 
+        <!-- PipeTV: version, build and channel on TVs, under the player when it is open -->
+        <TextView
+            android:id="@+id/pipetvBuildLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|end"
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="10dp"
+            android:background="@drawable/pipetv_build_label_background"
+            android:paddingHorizontal="8dp"
+            android:paddingVertical="2dp"
+            android:textColor="#D9FFFFFF"
+            android:textSize="11sp"
+            android:visibility="gone" />
+
         <androidx.fragment.app.FragmentContainerView
             android:id="@+id/fragment_player_holder"
             android:layout_width="match_parent"

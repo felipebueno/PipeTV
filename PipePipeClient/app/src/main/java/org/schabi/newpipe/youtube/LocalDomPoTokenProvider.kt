@@ -49,6 +49,21 @@ object LocalDomPoTokenProvider {
         )
     }
 
+    /**
+     * PipeTV: blocks until the minter is ready or has failed. The minter shares its WebView with
+     * the local JavaScript decoder, so long work there can wait for the minter instead of
+     * holding it back.
+     */
+    fun awaitInitialization() {
+        try {
+            ensureInitializationTask().get()
+        } catch (_: InterruptedException) {
+            Thread.currentThread().interrupt()
+        } catch (_: ExecutionException) {
+            // Failed: nothing to wait for anymore
+        }
+    }
+
     fun invalidate() {
         val sessionToClose: PersistentMintSession
         synchronized(initializationLock) {

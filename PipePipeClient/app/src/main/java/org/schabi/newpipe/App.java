@@ -182,6 +182,12 @@ public class App extends MultiDexApplication {
     }
 
     private void scheduleYoutubeDecoderPrewarm(final WebViewJavaScriptDecoder decoder) {
+        if (DeviceUtils.isTv(this)) {
+            // PipeTV: not on TVs. The first run takes 10 to 25 s of a TV stick's CPU and much of
+            // its memory right as the first video starts, which playback seldom needs: the
+            // decoder still starts by itself for a stream that does.
+            return;
+        }
         registerActivityLifecycleCallbacks(new Application.ActivityLifecycleCallbacks() {
             private boolean scheduled;
 
@@ -192,8 +198,13 @@ public class App extends MultiDexApplication {
                 }
                 scheduled = true;
                 unregisterActivityLifecycleCallbacks(this);
+                // PipeTV: after the PO token minter, which shares the decoder's WebView, so the
+                // decoder's long first run doesn't hold the minter back
                 activity.getWindow().getDecorView().postDelayed(
-                        () -> Schedulers.io().scheduleDirect(decoder::prewarm), 1_000);
+                        () -> Schedulers.io().scheduleDirect(() -> {
+                            LocalDomPoTokenProvider.INSTANCE.awaitInitialization();
+                            decoder.prewarm();
+                        }), 1_000);
             }
 
             @Override

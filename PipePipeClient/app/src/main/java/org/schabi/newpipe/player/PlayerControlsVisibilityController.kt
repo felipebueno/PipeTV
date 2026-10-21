@@ -9,6 +9,7 @@ import androidx.appcompat.app.AppCompatActivity
 import org.schabi.newpipe.ktx.AnimationType
 import org.schabi.newpipe.ktx.animate
 import org.schabi.newpipe.player.helper.PlayerHelper
+import org.schabi.newpipe.util.DeviceUtils
 
 /**
  * Owns the visibility of the player control root (the play/pause bar and its shadows).
@@ -151,7 +152,9 @@ class PlayerControlsVisibilityController(private val player: Player) {
         // and follows the controls' visibility.
         binding.lockButton.animate(
             show && !isLocked && player.isFullscreen && player.videoPlayerSelected() &&
-                PlayerHelper.isLockScreenButtonEnabled(player.context),
+                PlayerHelper.isLockScreenButtonEnabled(player.context) &&
+                // PipeTV: the lock is for touch screens; with a remote it only hides the controls
+                !DeviceUtils.isTv(player.context),
             duration, AnimationType.ALPHA, 0L, null
         )
         binding.playbackControlsShadow.animate(show, duration, AnimationType.ALPHA, 0L, null)

@@ -1053,6 +1053,11 @@ public final class VideoDetailFragment
             player.disablePreloadingOfCurrentTrack();
         }
 
+        // PipeTV: the sheet is on its way up, asked for by a broadcast that can arrive after a
+        // stream already in the cache has loaded, and autoplay must not take it for hidden
+        if (bottomSheetState == BottomSheetBehavior.STATE_HIDDEN) {
+            bottomSheetState = BottomSheetBehavior.STATE_EXPANDED;
+        }
         setInitialData(newServiceId, newUrl, newTitle, newQueue);
         startLoading(false, true);
     }

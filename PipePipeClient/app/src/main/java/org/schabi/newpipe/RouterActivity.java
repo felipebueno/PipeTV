@@ -574,7 +574,11 @@ public class RouterActivity extends AppCompatActivity {
 
         // stop and bypass FetcherService if InfoScreen was selected since
         // StreamDetailFragment can fetch data itself
-        if (selectedChoiceKey.equals(getString(R.string.show_info_key))) {
+        // PipeTV: so can the video player on a TV, where the player is the details page. Opening
+        // it right away brings the page up while the stream loads, instead of only afterwards.
+        if (selectedChoiceKey.equals(getString(R.string.show_info_key))
+                || (DeviceUtils.isTv(this) && currentLinkType == LinkType.STREAM
+                        && selectedChoiceKey.equals(getString(R.string.video_player_key)))) {
             disposables.add(Observable
                     .fromCallable(() -> NavigationHelper.getIntentByLink(this, currentUrl))
                     .subscribeOn(Schedulers.io())

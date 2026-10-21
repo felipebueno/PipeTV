@@ -29,18 +29,56 @@ PipePipe's GPLv3 license.
 - No focus ring left over the video once the player controls fade out, and a
   thinner, softer ring.
 
+**Third round (2026-10):**
+
+- As in the TV apps of the big video sites, the player has no way out of
+  fullscreen on TVs (Back closes it), and no touch lock button.
+- Faster video starts on TVs: a link opens the player page right away instead
+  of after its stream loaded, and the YouTube decoder no longer warms up at
+  start, which took 10 to 25 s of a TV stick's CPU right as the first video
+  started.
+- Faster related videos: the extractor compiled a regular expression per
+  phrase for every date of the list, seconds per video on a TV stick; it now
+  compiles each once (`patches/PipePipeExtractor/`).
+- A stream already loaded once autoplays again after the player was closed.
+- The running version, build and channel (dev or R8) in the bottom right
+  corner.
+
+Measured on a Mi TV Stick (1 GB, Android 9):
+
+| | debug | R8 before | R8 now | R8 now, fully compiled |
+|---|---|---|---|---|
+| Cold start to the first screen | 17 s | 2.6 s | 2.7 s | 2.2 s |
+| YouTube link, app closed, to playing | 45 s | 20 s | 17.5 s | 12 s |
+| YouTube link, app open, to playing | | didn't play | 8 s | 7 s |
+
 ## Building
 
 The app lives in `PipePipeClient/` (a squashed git subtree of upstream's
-client); the extractor is a submodule. The code targets Java 25.
+client); the extractor is upstream's submodule, with PipeTV's fixes to it in
+`patches/PipePipeExtractor/`. The code targets Java 25.
 
 ```sh
 git submodule update --init PipePipeExtractor
+git -C PipePipeExtractor apply ../patches/PipePipeExtractor/*.patch
 cd PipePipeClient
 JAVA_HOME=/path/to/jdk-25 ./gradlew assembleDebug
 ```
 
 APKs come per ABI; 32-bit TV sticks need `armeabi-v7a`.
+
+For the TV, use the optimized build: `./gradlew assembleMinified` makes the
+release build (R8) signed with the debug key, which installs next to the
+debug one (`.minified`). The debug build runs without ahead-of-time
+compilation and is several times slower on a TV stick.
+
+After `adb install`, Android compiles only the app's start-up code ahead of
+time, and the rest when the device is idle. To get there right away (34 s on a
+Mi TV Stick, and videos start about 5 s sooner):
+
+```sh
+adb shell cmd package compile -m speed -f io.github.felipebueno.pipetv.minified
+```
 
 ## Following upstream
 
