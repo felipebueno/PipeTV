@@ -39,7 +39,7 @@ PipePipe's GPLv3 license.
   started.
 - Faster related videos: the extractor compiled a regular expression per
   phrase for every date of the list, seconds per video on a TV stick; it now
-  compiles each once (`patches/PipePipeExtractor/`).
+  compiles each once (`TimeAgoParser`).
 - A stream already loaded once autoplays again after the player was closed.
 - The running version, build and channel (dev or R8) in the bottom right
   corner.
@@ -54,13 +54,11 @@ Measured on a Mi TV Stick (1 GB, Android 9):
 
 ## Building
 
-The app lives in `PipePipeClient/` (a squashed git subtree of upstream's
-client); the extractor is upstream's submodule, with PipeTV's fixes to it in
-`patches/PipePipeExtractor/`. The code targets Java 25.
+The app lives in `PipePipeClient/` and the extractor in `PipePipeExtractor/`,
+both squashed git subtrees of upstream's repositories. The code targets
+Java 25.
 
 ```sh
-git submodule update --init PipePipeExtractor
-git -C PipePipeExtractor apply ../patches/PipePipeExtractor/*.patch
 cd PipePipeClient
 JAVA_HOME=/path/to/jdk-25 ./gradlew assembleDebug
 ```
@@ -82,14 +80,19 @@ adb shell cmd package compile -m speed -f io.github.felipebueno.pipetv.minified
 
 ## Following upstream
 
-`upstream` is PipePipe and `upstream-client` its client repository. Watch them
-and bring over what's good for TVs:
+`upstream` is PipePipe, `upstream-client` its client repository and
+`upstream-extractor` its extractor. Watch them and bring over what's good for
+TVs:
 
 ```sh
 git fetch upstream-client
 git log --oneline upstream-client/dev          # what's new upstream
 git cherry-pick -X subtree=PipePipeClient <commit>
 git subtree pull --prefix=PipePipeClient upstream-client <tag> --squash   # a whole release
+
+git fetch upstream-extractor                   # the same for the extractor
+git cherry-pick -X subtree=PipePipeExtractor <commit>
+git subtree pull --prefix=PipePipeExtractor upstream-extractor main --squash
 ```
 
 Upstream's README follows.
