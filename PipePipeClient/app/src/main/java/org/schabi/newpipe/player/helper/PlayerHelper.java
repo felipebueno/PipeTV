@@ -380,6 +380,9 @@ public final class PlayerHelper {
     }
 
     public static boolean isStartMainPlayerFullscreenEnabled(@NonNull final Context context) {
+        if (DeviceUtils.isTv(context)) {
+            return true; // PipeTV: the TV player is always fullscreen, so its setting is hidden
+        }
         return getPreferences(context)
                 .getBoolean(context.getString(R.string.start_main_player_fullscreen_key),
                         context.getResources().getBoolean(

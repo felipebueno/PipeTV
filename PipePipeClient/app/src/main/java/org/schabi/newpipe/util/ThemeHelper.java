@@ -341,6 +341,9 @@ public final class ThemeHelper {
     }
 
     public static boolean shouldUseExperimentalNewUi(final Context context) {
+        if (DeviceUtils.isTv(context)) {
+            return false; // PipeTV: its items don't take the TV focus look, so it's hidden there
+        }
         final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
         return preferences.getBoolean(context.getString(R.string.use_experimental_new_ui_key), false);
     }

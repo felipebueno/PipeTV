@@ -4,4 +4,5 @@
     <string name="pipetv_home">Home</string>
     <string name="pipetv_recently_watched">Recently watched</string>
     <string name="pipetv_more_like">More like %1$s</string>
+    <string name="pipetv_remote_control">Remote control</string>
 </resources>
