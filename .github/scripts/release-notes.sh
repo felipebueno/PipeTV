@@ -20,7 +20,8 @@ echo
 section=$(awk -v version="$version" '
     index($0, "## [" version "]") == 1 { found = 1; next }
     found && /^## \[/ { exit }
-    found { print }
+    found && !started && /^[[:space:]]*$/ { next }
+    found { started = 1; print }
 ' CHANGELOG.md)
 if [ -n "$(echo "$section" | tr -d '[:space:]')" ]; then
     echo "$section"
