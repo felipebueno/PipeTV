@@ -1,0 +1,45 @@
+# Publishes PipeTV's website, site/ plus the README's screenshots, on GitHub Pages:
+# https://felipebueno.github.io/PipeTV/
+name: Website
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - site/**
+      - docs/screenshots/**
+      - .github/workflows/pages.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Put the site together
+        run: |
+          mkdir -p _site/screenshots
+          cp -r site/. _site/
+          cp docs/screenshots/*.jpg _site/screenshots/
+
+      - uses: actions/configure-pages@v6
+
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: _site
+
+      - id: deployment
+        uses: actions/deploy-pages@v5

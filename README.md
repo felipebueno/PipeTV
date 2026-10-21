@@ -12,6 +12,8 @@
 <p align="center">
   <a href="https://github.com/felipebueno/PipeTV/releases/latest"><b>Download</b></a>
   &nbsp;·&nbsp;
+  <a href="https://felipebueno.github.io/PipeTV/">Website</a>
+  &nbsp;·&nbsp;
   <a href="#install">Install</a>
   &nbsp;·&nbsp;
   <a href="#using-the-remote">Using the remote</a>
@@ -39,6 +41,10 @@ memory, where it opens in 2 to 3 seconds.
 
 **Private.** No ads, no account, no tracking. Your subscriptions, history and
 playlists stay on your TV, and SponsorBlock skips sponsored segments.
+
+**Updates itself.** A new version shows up at the top of the home. Choose it,
+see what's new, and PipeTV downloads it, checks it and hands it to Android's
+installer.
 
 **Yours to tune.** Hide shorts, paid and upcoming videos, filter out keywords
 or channels, choose how far Left and Right seek, or turn on DeArrow for
@@ -87,8 +93,9 @@ or newer.
    - On a USB drive, opened with a file manager on the TV
 3. When the TV asks, allow that app to install unknown apps.
 
-To update, install the newest release the same way. It installs over the one
-you have and keeps your history and subscriptions. PipeTV installs next to
+After that, PipeTV looks for new versions every hour and offers them at the
+top of its home: choose Update, confirm in Android's installer, then Open.
+Your history and subscriptions stay as they are. PipeTV installs next to
 YouTube and PipePipe, without replacing them.
 
 ## Using the remote
