@@ -84,8 +84,8 @@
     <color name="white">#FFFFFF</color>
     <!-- PipeTV: the TV focus ring (FocusOverlayView), clear on white lists, the red
          toolbar and the black player. -->
-    <color name="tv_focus_ring">#FF2979FF</color>
-    <color name="tv_focus_halo">#CCFFFFFF</color>
+    <color name="tv_focus_ring">#FF448AFF</color>
+    <color name="tv_focus_halo">#8CFFFFFF</color>
     <color name="white_secondary">#C9CACB</color>
 
     <color name="gray">#616161</color>

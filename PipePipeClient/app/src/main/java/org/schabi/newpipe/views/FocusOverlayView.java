@@ -35,6 +35,7 @@ import android.os.Message;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewParent;
 import android.view.ViewTreeObserver;
 import android.view.Window;
 
@@ -78,15 +79,15 @@ public final class FocusOverlayView extends Drawable implements
 
     public FocusOverlayView(final Context context) {
         final float density = context.getResources().getDisplayMetrics().density;
-        final float ringWidth = 3 * density;
+        final float ringWidth = 2 * density;
         ringGap = 3 * density;
-        ringRadius = 10 * density;
+        ringRadius = 12 * density;
         rectPaint.setAntiAlias(true);
         rectPaint.setStyle(Paint.Style.STROKE);
         rectPaint.setStrokeWidth(ringWidth);
         rectPaint.setColor(ContextCompat.getColor(context, R.color.tv_focus_ring));
         haloPaint.setStyle(Paint.Style.STROKE);
-        haloPaint.setStrokeWidth(ringWidth + 3 * density);
+        haloPaint.setStrokeWidth(ringWidth + 2 * density);
         haloPaint.setColor(ContextCompat.getColor(context, R.color.tv_focus_halo));
     }
 
@@ -111,8 +112,11 @@ public final class FocusOverlayView extends Drawable implements
         final int t = focusRect.top;
         final int b = focusRect.bottom;
 
-        if (focusedView != null && isShown(focusedView)) {
-            focusedView.getGlobalVisibleRect(focusRect);
+        if (focusedView == null || !isShown(focusedView)
+                || !focusedView.getGlobalVisibleRect(focusRect)) {
+            // PipeTV: no ring left behind where a hidden view had the focus, e.g. over the
+            // video once the player controls fade out
+            focusRect.setEmpty();
         }
 
         if (shouldClearFocusRect(focusedView, focusRect)) {
@@ -126,7 +130,16 @@ public final class FocusOverlayView extends Drawable implements
     }
 
     private boolean isShown(@NonNull final View view) {
-        return view.getWidth() != 0 && view.getHeight() != 0 && view.isShown();
+        if (view.getWidth() == 0 || view.getHeight() == 0 || !view.isShown()) {
+            return false;
+        }
+        // PipeTV: nor is a view faded out, by itself or with a parent
+        for (ViewParent v = view.getParent(); v instanceof View; v = v.getParent()) {
+            if (((View) v).getAlpha() == 0f) {
+                return false;
+            }
+        }
+        return view.getAlpha() != 0f;
     }
 
     @Override
@@ -200,7 +213,9 @@ public final class FocusOverlayView extends Drawable implements
      * equal to the overlayView bounds
      * */
     private boolean shouldClearFocusRect(@Nullable final View focusedView, final Rect focusedRect) {
-        return focusedView == null || focusedRect.equals(getBounds());
+        return focusedView == null || focusedRect.equals(getBounds())
+                // PipeTV: a window can turn the ring off, e.g. while a cover hides its content
+                || focusedView.getRootView().getTag(R.id.pipetv_no_focus_ring) != null;
     }
 
     public static void setupFocusObserver(final Dialog dialog) {

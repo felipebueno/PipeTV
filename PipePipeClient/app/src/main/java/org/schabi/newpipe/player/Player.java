@@ -1721,7 +1721,8 @@ public final class Player {
         return queueController.getSegmentAdapter();
     }
 
-    boolean isQueueVisible() {
+    // PipeTV: public for the related videos row of the TV player (VideoDetailFragment)
+    public boolean isQueueVisible() {
         return queueController.isQueueVisible();
     }
 

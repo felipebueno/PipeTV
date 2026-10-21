@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- PipeTV: tag on a window's root view that keeps FocusOverlayView from drawing its focus
+         ring there, e.g. while the loading cover hides the page and the focus underneath. -->
+    <item name="pipetv_no_focus_ring" type="id" />
+</resources>

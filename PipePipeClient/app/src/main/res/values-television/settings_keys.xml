@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- PipeTV: on a TV, links open straight in the video player instead of asking
+         (pick an action, then "just once" or "always") every time. -->
+    <string name="preferred_open_action_default" translatable="false">@string/video_player_key</string>
+</resources>

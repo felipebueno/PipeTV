@@ -4,6 +4,7 @@ import android.animation.ValueAnimator;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.res.ColorStateList;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
@@ -23,12 +24,16 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
+import android.view.FocusFinder;
+import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.view.WindowManager;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.FrameLayout;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.LinearLayout;
 
@@ -57,6 +62,7 @@ import org.schabi.newpipe.App;
 import org.schabi.newpipe.R;
 import org.schabi.newpipe.database.stream.model.StreamEntity;
 import org.schabi.newpipe.databinding.FragmentVideoDetailBinding;
+import org.schabi.newpipe.databinding.PlayerBinding;
 import org.schabi.newpipe.download.DownloadDialog;
 import org.schabi.newpipe.error.ErrorInfo;
 import org.schabi.newpipe.error.ErrorUtil;
@@ -110,6 +116,7 @@ import org.schabi.newpipe.util.dearrow.DeArrowRow;
 import org.schabi.newpipe.util.external_communication.KoreUtils;
 import org.schabi.newpipe.util.external_communication.ShareUtils;
 
+import java.lang.ref.WeakReference;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -222,6 +229,22 @@ public final class VideoDetailFragment
     protected PlayQueue playQueue = null;
     int bottomSheetState = BottomSheetBehavior.STATE_EXPANDED;
     protected boolean autoPlayEnabled = true;
+
+    /**
+     * PipeTV: on a TV the details page stays behind this black cover while a stream loads, so
+     * choosing a video goes straight to the fullscreen player.
+     */
+    @Nullable
+    private View tvLoadingCover;
+    private final Runnable hideTvLoadingCover = () -> showTvLoadingCover(false);
+    // A last resort only: a live stream can take 40 s to start on a slow TV stick
+    private static final long TV_LOADING_COVER_TIMEOUT_MS = 60_000;
+    /** PipeTV: the list item the player was opened from, focused again when it closes. */
+    @Nullable
+    private WeakReference<View> tvListFocus;
+    /** PipeTV: the related videos row of the fullscreen player on TVs. */
+    @Nullable
+    private TvRelatedRow tvRelatedRow;
 
     @Nullable
     private StreamInfo currentInfo = null;
@@ -478,6 +501,11 @@ public final class VideoDetailFragment
 
     @Override
     public void onDestroyView() {
+        // PipeTV: also gives the window its focus ring back
+        showTvLoadingCover(false);
+        tvLoadingCover = null;
+        hideTvRelatedRow();
+        tvRelatedRow = null;
         super.onDestroyView();
         binding = null;
     }
@@ -782,6 +810,8 @@ public final class VideoDetailFragment
             binding.detailControlsShare.setBackgroundColor(transparent);
             binding.detailControlsOpenInBrowser.setBackgroundColor(transparent);
             binding.detailControlsPlayWithKodi.setBackgroundColor(transparent);
+            setUpTvLoadingCover();
+            setUpTvRelatedRow();
         }
     }
 
@@ -897,6 +927,13 @@ public final class VideoDetailFragment
 
     @Override
     public boolean onKeyDown(final int keyCode) {
+        // PipeTV: the related videos row takes the keys while it's shown
+        if (tvRelatedRow != null && tvRelatedRow.isShown()) {
+            return tvRelatedRow.onKeyDown(keyCode);
+        }
+        if (keyCode == KeyEvent.KEYCODE_DPAD_DOWN && showTvRelatedRow()) {
+            return true;
+        }
         return isPlayerAvailable() && player.onKeyDown(keyCode);
     }
 
@@ -907,6 +944,15 @@ public final class VideoDetailFragment
         }
 
         if (callCommentFragmentOnBack()) {
+            return true;
+        }
+
+        // PipeTV: on a TV the player is the page, so Back closes it (or a load in progress)
+        // and returns to the list instead of showing the details page.
+        if (DeviceUtils.isTv(activity)
+                && (isTvLoadingCoverShown() || (isPlayerAvailable() && player.isFullscreen()))) {
+            showTvLoadingCover(false);
+            bottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
             return true;
         }
 
@@ -1082,6 +1128,13 @@ public final class VideoDetailFragment
 
     private void runWorker(final boolean forceLoad, final boolean addToBackStack) {
         final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(activity);
+        // PipeTV: a video chosen on a TV goes straight to the fullscreen player; the details
+        // page stays covered while the stream loads.
+        if (DeviceUtils.isTv(activity) && isAutoplayEnabled()
+                && PlayerHelper.isStartMainPlayerFullscreenEnabled(activity)
+                && !(isPlayerAvailable() && player.isFullscreen())) {
+            showTvLoadingCover(true);
+        }
         currentWorker = ExtractorHelper.getStreamInfo(serviceId, url, forceLoad
                         || url.contains("live.bilibili.com"))
                 .subscribeOn(Schedulers.io())
@@ -1103,8 +1156,11 @@ public final class VideoDetailFragment
                     if (isAutoplayEnabled()) {
                         openVideoPlayerAutoFullscreen();
                     }
-                }, throwable -> showError(new ErrorInfo(throwable, UserAction.REQUESTED_STREAM,
-                        url == null ? "no url" : url, serviceId)));
+                }, throwable -> {
+                    showTvLoadingCover(false);
+                    showError(new ErrorInfo(throwable, UserAction.REQUESTED_STREAM,
+                            url == null ? "no url" : url, serviceId));
+                });
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -1510,6 +1566,121 @@ public final class VideoDetailFragment
      */
     public void openVideoPlayerAutoFullscreen() {
         openVideoPlayer(PlayerHelper.isStartMainPlayerFullscreenEnabled(requireContext()));
+    }
+
+    /** PipeTV: builds the black cover that hides the details page on TVs while a video loads. */
+    private void setUpTvLoadingCover() {
+        if (!(binding.getRoot() instanceof FrameLayout)) {
+            return;
+        }
+        final Context context = requireContext();
+        final FrameLayout cover = new FrameLayout(context);
+        cover.setBackgroundColor(Color.BLACK);
+        cover.setClickable(true);
+        // It holds the focus while shown, so the remote can't wander around the page underneath
+        cover.setFocusable(true);
+        cover.setVisibility(View.GONE);
+        final ProgressBar spinner = new ProgressBar(context);
+        spinner.setIndeterminateTintList(ColorStateList.valueOf(Color.WHITE));
+        cover.addView(spinner, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT, Gravity.CENTER));
+        ((FrameLayout) binding.getRoot()).addView(cover, new FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        tvLoadingCover = cover;
+    }
+
+    /**
+     * PipeTV: shows or hides the loading cover. It goes away when the player turns fullscreen
+     * or starts playing, and never stays longer than {@link #TV_LOADING_COVER_TIMEOUT_MS}.
+     */
+    private void showTvLoadingCover(final boolean show) {
+        if (tvLoadingCover == null) {
+            return;
+        }
+        tvLoadingCover.removeCallbacks(hideTvLoadingCover);
+        tvLoadingCover.setVisibility(show ? View.VISIBLE : View.GONE);
+        // No focus ring over the cover, wherever the focus goes underneath it
+        if (activity != null) {
+            activity.getWindow().getDecorView()
+                    .setTag(R.id.pipetv_no_focus_ring, show ? Boolean.TRUE : null);
+        }
+        if (show) {
+            rememberListFocus();
+            tvLoadingCover.requestFocus();
+            tvLoadingCover.postDelayed(hideTvLoadingCover, TV_LOADING_COVER_TIMEOUT_MS);
+        }
+    }
+
+    private boolean isTvLoadingCoverShown() {
+        return tvLoadingCover != null && tvLoadingCover.getVisibility() == View.VISIBLE;
+    }
+
+    /** PipeTV: builds the related videos row of the fullscreen player on TVs. */
+    private void setUpTvRelatedRow() {
+        if (!(binding.getRoot() instanceof FrameLayout)) {
+            return;
+        }
+        tvRelatedRow = new TvRelatedRow((FrameLayout) binding.getRoot(),
+                new TvRelatedRow.Listener() {
+                    @Override
+                    public void onRelatedVideoChosen(@NonNull final StreamInfoItem item) {
+                        // The old video stops and the cover hides it until the new one plays
+                        if (isPlayerAvailable()) {
+                            player.pause();
+                        }
+                        showTvLoadingCover(true);
+                        NavigationHelper.openVideoDetailFragment(requireContext(), getFM(),
+                                item.getServiceId(), item.getUrl(), item.getName(), null, false);
+                    }
+
+                    @Override
+                    public void onRelatedRowClosed(final boolean toControls) {
+                        if (toControls && isPlayerAvailable()) {
+                            player.showControlsThenHide();
+                            player.getBinding().playbackSeekBar.requestFocus();
+                        }
+                    }
+                });
+    }
+
+    /**
+     * PipeTV: Down opens the related videos row over the fullscreen player, right away when the
+     * player controls are hidden, or from their bottom when they are shown.
+     *
+     * @return whether the row was opened
+     */
+    private boolean showTvRelatedRow() {
+        if (tvRelatedRow == null || currentInfo == null || !isPlayerAvailable()
+                || !player.isFullscreen() || player.isQueueVisible()) {
+            return false;
+        }
+        final PlayerBinding playerBinding = player.getBinding();
+        if (playerBinding.chatPanel.hasFocus()) {
+            return false; // Down scrolls the live chat
+        }
+        final ViewGroup controls = playerBinding.playbackControlRoot;
+        if (player.isControlsVisible() && controls.hasFocus()) {
+            // Only what lies below counts: the seek bar's nextFocusDown is the button beside it
+            final View focused = controls.findFocus();
+            final Rect rect = new Rect();
+            focused.getDrawingRect(rect);
+            controls.offsetDescendantRectToMyCoords(focused, rect);
+            if (FocusFinder.getInstance()
+                    .findNextFocusFromRect(controls, rect, View.FOCUS_DOWN) != null) {
+                return false; // Down still moves among the controls
+            }
+        }
+        if (!tvRelatedRow.show(currentInfo.getRelatedItems())) {
+            return false;
+        }
+        player.hideControls(0, 0);
+        return true;
+    }
+
+    private void hideTvRelatedRow() {
+        if (tvRelatedRow != null) {
+            tvRelatedRow.hide();
+        }
     }
 
     private void openNormalBackgroundPlayer(final boolean append) {
@@ -2261,6 +2432,7 @@ public final class VideoDetailFragment
 
         switch (state) {
             case PLAYING:
+                showTvLoadingCover(false);
                 if (binding.positionView.getAlpha() != 1.0f
                         && player.getPlayQueue() != null
                         && player.getPlayQueue().getItem() != null
@@ -2328,6 +2500,8 @@ public final class VideoDetailFragment
     @Override
     public void onPlayerError(final PlayerError error, final boolean isCatchableException) {
         if (!isCatchableException) {
+            showTvLoadingCover(false);
+            hideTvRelatedRow();
             // Properly exit from fullscreen
             if (isPlayerAvailable()) {
                 player.changeFullscreen(false);
@@ -2350,6 +2524,11 @@ public final class VideoDetailFragment
 
     @Override
     public void onFullscreenStateChanged(final boolean fullscreen) {
+        if (fullscreen) {
+            showTvLoadingCover(false);
+        } else {
+            hideTvRelatedRow();
+        }
         updateBottomSheetDraggableForFullscreen();
         setupBrightness();
         if (!isPlayerAndPlayerServiceAvailable()
@@ -2595,16 +2774,33 @@ public final class VideoDetailFragment
             // or the toolbar (e.g. Textfield for search) don't have focus.
             // This was done to fix problems with the keyboard input, see also #7490
             if (!mainFragment.hasFocus() && !toolbar.hasFocus()) {
-                mainFragment.requestFocus();
+                // PipeTV: back to the item the player was opened from
+                final View listFocus = tvListFocus == null ? null : tvListFocus.get();
+                if (listFocus == null || !listFocus.isShown() || !listFocus.requestFocus()) {
+                    mainFragment.requestFocus();
+                }
             }
         } else {
+            rememberListFocus();
             mainFragment.setDescendantFocusability(blockDescendants);
             toolbar.setDescendantFocusability(blockDescendants);
             ((ViewGroup) requireView()).setDescendantFocusability(afterDescendants);
-            // Only focus the player if it not already has focus
-            if (!binding.getRoot().hasFocus()) {
+            if (isTvLoadingCoverShown()) {
+                // PipeTV: the cover keeps the focus while it hides the page
+                tvLoadingCover.requestFocus();
+            } else if (!binding.getRoot().hasFocus()) {
+                // Only focus the player if it not already has focus
                 binding.detailThumbnailRootLayout.requestFocus();
             }
+        }
+    }
+
+    /** PipeTV: remembers the list item that has the focus, before the player takes it. */
+    private void rememberListFocus() {
+        final View mainFragment = requireActivity().findViewById(R.id.fragment_holder);
+        final View focused = requireActivity().getCurrentFocus();
+        if (mainFragment != null && mainFragment.hasFocus() && focused != null) {
+            tvListFocus = new WeakReference<>(focused);
         }
     }
 
@@ -2677,6 +2873,11 @@ public final class VideoDetailFragment
         }
         bottomSheetBehavior.setState(restoredState);
         applyOverlayForState(restoredState);
+        if (restoredState == BottomSheetBehavior.STATE_EXPANDED) {
+            // PipeTV: the callback below misses the state the sheet starts in, e.g. when a link
+            // opens the player straight away, and the list underneath would keep the focus.
+            moveFocusToMainFragment(false);
+        }
         // BottomSheetBehavior restores its own state silently (i.e. without onStateChanged) when
         // the activity's view hierarchy is restored, and this can happen after this method ran
         // and leaves the mini player overlay visible over an expanded detail page. Re-apply the
@@ -2690,6 +2891,8 @@ public final class VideoDetailFragment
                 try {
                     switch (newState) {
                         case BottomSheetBehavior.STATE_HIDDEN:
+                            showTvLoadingCover(false);
+                            hideTvRelatedRow();
                             moveFocusToMainFragment(true);
                             manageSpaceAtTheBottom(true);
 
@@ -2713,6 +2916,8 @@ public final class VideoDetailFragment
                             }
                             break;
                         case BottomSheetBehavior.STATE_COLLAPSED:
+                            showTvLoadingCover(false);
+                            hideTvRelatedRow();
                             moveFocusToMainFragment(true);
                             manageSpaceAtTheBottom(false);
 

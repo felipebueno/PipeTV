@@ -10,13 +10,24 @@ PipePipe's GPLv3 license.
 
 - No changelog, donation, upstream announcement or update-checker dialogs on
   start, and no announcement fetch slowing it down.
-- A thick rounded focus ring (`FocusOverlayView`) that shows on white lists,
-  the red toolbar and the black player alike.
+- A rounded focus ring (`FocusOverlayView`) that shows on white lists, the
+  red toolbar and the black player alike.
 - Videos open in fullscreen on TVs (the setting still exists; it defaults to
   on through `values-television`).
 - In the player, Left and Right seek right away and hand the focus to the seek
   bar, so holding them keeps seeking.
 - PipeTV name and banner.
+
+**Second round (2026-10):**
+
+- Choosing a video goes straight to the fullscreen player: a black loading
+  cover hides the details page while the stream loads.
+- Back in the player returns to the list, on the video it was opened from.
+- Down in the fullscreen player opens a row of related videos over the video
+  (`TvRelatedRow`): OK plays one, Up goes back to the controls, Back closes it.
+- YouTube links open straight in the player on TVs, without the chooser.
+- No focus ring left over the video once the player controls fade out, and a
+  thinner, softer ring.
 
 ## Building
 

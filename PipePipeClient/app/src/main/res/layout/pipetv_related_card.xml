@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- PipeTV: a video in the related videos row of the fullscreen player on TVs. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="176dp"
+    android:layout_height="wrap_content"
+    android:layout_marginEnd="16dp"
+    android:clickable="true"
+    android:focusable="true"
+    android:orientation="vertical">
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="99dp">
+
+        <ImageView
+            android:id="@+id/pipetvRelatedThumbnail"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/dark_card_item_background_color"
+            android:scaleType="centerCrop"
+            tools:ignore="ContentDescription" />
+
+        <TextView
+            android:id="@+id/pipetvRelatedDuration"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|end"
+            android:layout_margin="4dp"
+            android:background="@color/duration_background_color"
+            android:paddingHorizontal="4dp"
+            android:paddingVertical="1dp"
+            android:textColor="@color/duration_text_color"
+            android:textSize="11sp"
+            tools:text="12:34" />
+    </FrameLayout>
+
+    <TextView
+        android:id="@+id/pipetvRelatedTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:ellipsize="end"
+        android:lines="2"
+        android:textColor="@color/white"
+        android:textSize="13sp"
+        tools:text="A video title that is long enough to take two lines" />
+
+    <TextView
+        android:id="@+id/pipetvRelatedChannel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:textColor="@color/white_secondary"
+        android:textSize="12sp"
+        tools:text="Channel" />
+
+</LinearLayout>
