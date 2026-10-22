@@ -5,4 +5,6 @@
     <bool name="start_main_player_fullscreen_default">false</bool>
     <!-- PipeTV: media tunneling is off by default on TVs (values-television), not on phones. -->
     <bool name="disable_media_tunneling_default">false</bool>
+    <!-- PipeTV: autoplay of the next video is on by default on TVs (values-television). -->
+    <bool name="auto_queue_default">false</bool>
 </resources>

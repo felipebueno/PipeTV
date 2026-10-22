@@ -6,4 +6,7 @@
          hardware, and on Amlogic sticks (Mi TV Stick) it stalled after seeks, as SponsorBlock's
          skips, with the sound paused while the picture waited. -->
     <bool name="disable_media_tunneling_default">true</bool>
+    <!-- PipeTV: a TV plays the next related video after a countdown it can be cancelled in
+         (fragments/detail/TvUpNext), as the TV apps of the big video sites do. -->
+    <bool name="auto_queue_default">true</bool>
 </resources>

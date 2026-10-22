@@ -390,8 +390,9 @@ public final class PlayerHelper {
     }
 
     public static boolean isAutoQueueEnabled(@NonNull final Context context) {
-        return getPreferences(context)
-                .getBoolean(context.getString(R.string.auto_queue_key), false);
+        // PipeTV: on by default on TVs (values-television)
+        return getPreferences(context).getBoolean(context.getString(R.string.auto_queue_key),
+                context.getResources().getBoolean(R.bool.auto_queue_default));
     }
 
     @MinimizeMode

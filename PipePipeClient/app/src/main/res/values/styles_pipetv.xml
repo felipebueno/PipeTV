@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- PipeTV's own styles, apart from upstream's. -->
+<resources>
+    <!-- A rounded button for the remote, over the dark player, e.g. the up next card's. The
+         focus ring shows the focus; the pill only brightens a little. -->
+    <style name="PipeTvPillButton">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:background">@drawable/pipetv_pill_button</item>
+        <item name="android:clickable">true</item>
+        <item name="android:focusable">true</item>
+        <item name="android:drawablePadding">8dp</item>
+        <item name="android:drawableTint">#FFFFFFFF</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:paddingStart">18dp</item>
+        <item name="android:paddingTop">10dp</item>
+        <item name="android:paddingEnd">22dp</item>
+        <item name="android:paddingBottom">10dp</item>
+        <item name="android:textColor">#FFFFFFFF</item>
+        <item name="android:textSize">16sp</item>
+    </style>
+</resources>

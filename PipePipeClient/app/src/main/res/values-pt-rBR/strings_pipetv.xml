@@ -4,6 +4,12 @@
     <string name="pipetv_recently_watched">Assistidos recentemente</string>
     <string name="pipetv_more_like">Mais como %1$s</string>
     <string name="pipetv_remote_control">Controle remoto</string>
+    <string name="pipetv_up_next">A seguir</string>
+    <string name="pipetv_up_next_in">Começa em %d s</string>
+    <string name="pipetv_up_next_play">Assistir agora</string>
+    <string name="pipetv_up_next_cancel">Cancelar</string>
+    <string name="pipetv_autoplay_title">Reproduzir o próximo automaticamente</string>
+    <string name="pipetv_autoplay_summary">Ao fim de um vídeo, o próximo relacionado começa em 10 segundos, a não ser que você cancele</string>
     <string name="pipetv_update_available">Atualização disponível: PipeTV %1$s</string>
     <string name="pipetv_update_title">PipeTV %1$s</string>
     <string name="pipetv_update_builds">Build %1$d. Você tem o build %2$s.</string>

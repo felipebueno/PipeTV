@@ -110,6 +110,7 @@ public abstract class BasePreferenceFragment extends PreferenceFragmentCompat {
             R.string.grid_columns_key,
             R.string.video_tabs_key,
             R.string.main_tabs_position_key,
+            R.string.dont_auto_queue_long_key,
     };
 
     private void hideWhatPipeTvDoesNotUse() {
@@ -126,6 +127,12 @@ public abstract class BasePreferenceFragment extends PreferenceFragmentCompat {
         // What is left of the gestures on a TV is the remote's seek step
         if (this instanceof GestureSettingsFragment) {
             getPreferenceScreen().setTitle(R.string.pipetv_remote_control);
+        }
+        // On a TV, auto-enqueue is autoplay with a countdown (TvUpNext), for videos of any length
+        final Preference autoplay = findPreference(getString(R.string.auto_queue_key));
+        if (autoplay != null) {
+            autoplay.setTitle(R.string.pipetv_autoplay_title);
+            autoplay.setSummary(R.string.pipetv_autoplay_summary);
         }
         final PreferenceScreen screen = getPreferenceScreen();
         for (int i = 0; i < screen.getPreferenceCount(); i++) {

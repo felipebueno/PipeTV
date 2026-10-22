@@ -245,6 +245,9 @@ public final class VideoDetailFragment
     /** PipeTV: the related videos row of the fullscreen player on TVs. */
     @Nullable
     private TvRelatedRow tvRelatedRow;
+    /** PipeTV: the up next card of the fullscreen player on TVs, at the end of a video. */
+    @Nullable
+    private TvUpNext tvUpNext;
 
     @Nullable
     private StreamInfo currentInfo = null;
@@ -408,6 +411,10 @@ public final class VideoDetailFragment
         if (currentWorker != null) {
             currentWorker.dispose();
         }
+        // PipeTV: no countdown that ends with a video playing in the background
+        if (tvUpNext != null) {
+            tvUpNext.hide();
+        }
         restoreDefaultBrightness();
         PreferenceManager.getDefaultSharedPreferences(requireContext())
                 .edit()
@@ -504,8 +511,9 @@ public final class VideoDetailFragment
         // PipeTV: also gives the window its focus ring back
         showTvLoadingCover(false);
         tvLoadingCover = null;
-        hideTvRelatedRow();
+        hideTvPlayerOverlays();
         tvRelatedRow = null;
+        tvUpNext = null;
         super.onDestroyView();
         binding = null;
     }
@@ -812,6 +820,7 @@ public final class VideoDetailFragment
             binding.detailControlsPlayWithKodi.setBackgroundColor(transparent);
             setUpTvLoadingCover();
             setUpTvRelatedRow();
+            setUpTvUpNext();
         }
     }
 
@@ -927,7 +936,10 @@ public final class VideoDetailFragment
 
     @Override
     public boolean onKeyDown(final int keyCode) {
-        // PipeTV: the related videos row takes the keys while it's shown
+        // PipeTV: the up next card and the related videos row take the keys while shown
+        if (tvUpNext != null && tvUpNext.isShown()) {
+            return tvUpNext.onKeyDown(keyCode);
+        }
         if (tvRelatedRow != null && tvRelatedRow.isShown()) {
             return tvRelatedRow.onKeyDown(keyCode);
         }
@@ -1682,9 +1694,64 @@ public final class VideoDetailFragment
         return true;
     }
 
-    private void hideTvRelatedRow() {
+    /** PipeTV: hides the related videos row and the up next card. */
+    private void hideTvPlayerOverlays() {
         if (tvRelatedRow != null) {
             tvRelatedRow.hide();
+        }
+        if (tvUpNext != null) {
+            tvUpNext.hide();
+        }
+    }
+
+    /** PipeTV: builds the up next card of the fullscreen player on TVs. */
+    private void setUpTvUpNext() {
+        if (!(binding.getRoot() instanceof FrameLayout)) {
+            return;
+        }
+        tvUpNext = new TvUpNext((FrameLayout) binding.getRoot(), new TvUpNext.Listener() {
+            @Override
+            public void onUpNextPlay(@NonNull final StreamInfoItem item) {
+                showTvLoadingCover(true);
+                NavigationHelper.openVideoDetailFragment(requireContext(), getFM(),
+                        item.getServiceId(), item.getUrl(), item.getName(), null, false);
+            }
+
+            @Override
+            public void onUpNextCancelled() {
+                // The ended video keeps its controls, with the replay button focused
+                if (isPlayerAvailable()) {
+                    player.showControls(Player.DEFAULT_CONTROLS_DURATION);
+                    player.getBinding().playPauseButton.requestFocus();
+                }
+            }
+        });
+    }
+
+    /**
+     * PipeTV: when a video ends on a TV with autoplay on, and the queue has nothing after it,
+     * the first related video plays after a countdown (TvUpNext). A queue of the user's own
+     * goes on by itself.
+     */
+    private void showTvUpNextIfAutoplay() {
+        if (tvUpNext == null || tvUpNext.isShown() || !DeviceUtils.isTv(activity)
+                || !PlayerHelper.isAutoQueueEnabled(activity) || !isPlayerAvailable()
+                || !player.isFullscreen() || currentInfo == null) {
+            return;
+        }
+        final PlayQueue queue = player.getPlayQueue();
+        if (queue != null && queue.getIndex() < queue.size() - 1) {
+            return;
+        }
+        for (final InfoItem item : currentInfo.getRelatedItems()) {
+            if (item instanceof StreamInfoItem && !item.getUrl().equals(currentInfo.getUrl())) {
+                if (tvRelatedRow != null) {
+                    tvRelatedRow.hide();
+                }
+                player.hideControls(0, 0);
+                tvUpNext.show((StreamInfoItem) item);
+                return;
+            }
         }
     }
 
@@ -2436,7 +2503,14 @@ public final class VideoDetailFragment
         setOverlayPlayPauseImage(player != null && player.isPlaying());
 
         switch (state) {
+            case COMPLETED:
+                showTvUpNextIfAutoplay();
+                break;
             case PLAYING:
+                // PipeTV: playing again, e.g. replayed, there's nothing up next anymore
+                if (tvUpNext != null) {
+                    tvUpNext.hide();
+                }
                 showTvLoadingCover(false);
                 if (binding.positionView.getAlpha() != 1.0f
                         && player.getPlayQueue() != null
@@ -2506,7 +2580,7 @@ public final class VideoDetailFragment
     public void onPlayerError(final PlayerError error, final boolean isCatchableException) {
         if (!isCatchableException) {
             showTvLoadingCover(false);
-            hideTvRelatedRow();
+            hideTvPlayerOverlays();
             // Properly exit from fullscreen
             if (isPlayerAvailable()) {
                 player.changeFullscreen(false);
@@ -2532,7 +2606,7 @@ public final class VideoDetailFragment
         if (fullscreen) {
             showTvLoadingCover(false);
         } else {
-            hideTvRelatedRow();
+            hideTvPlayerOverlays();
         }
         updateBottomSheetDraggableForFullscreen();
         setupBrightness();
@@ -2904,7 +2978,7 @@ public final class VideoDetailFragment
                     switch (newState) {
                         case BottomSheetBehavior.STATE_HIDDEN:
                             showTvLoadingCover(false);
-                            hideTvRelatedRow();
+                            hideTvPlayerOverlays();
                             moveFocusToMainFragment(true);
                             manageSpaceAtTheBottom(true);
 
@@ -2929,7 +3003,7 @@ public final class VideoDetailFragment
                             break;
                         case BottomSheetBehavior.STATE_COLLAPSED:
                             showTvLoadingCover(false);
-                            hideTvRelatedRow();
+                            hideTvPlayerOverlays();
                             moveFocusToMainFragment(true);
                             manageSpaceAtTheBottom(false);
 

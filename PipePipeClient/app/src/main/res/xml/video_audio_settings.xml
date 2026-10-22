@@ -82,7 +82,7 @@
             app:iconSpaceReserved="false" />
 
     <SwitchPreferenceCompat
-            android:defaultValue="false"
+            android:defaultValue="@bool/auto_queue_default"
             android:key="@string/auto_queue_key"
             android:summary="@string/auto_queue_summary"
             android:title="@string/auto_queue_title"

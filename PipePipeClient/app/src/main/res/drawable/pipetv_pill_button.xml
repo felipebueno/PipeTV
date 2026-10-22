@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- PipeTV: PipeTvPillButton's pill, a little brighter while focused. -->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:state_focused="true">
+        <shape>
+            <solid android:color="#4DFFFFFF" />
+            <corners android:radius="24dp" />
+        </shape>
+    </item>
+    <item>
+        <shape>
+            <solid android:color="#26FFFFFF" />
+            <corners android:radius="24dp" />
+        </shape>
+    </item>
+</selector>

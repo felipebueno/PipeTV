@@ -4,6 +4,7 @@ import org.schabi.newpipe.R
 import org.schabi.newpipe.extractor.stream.StreamInfo
 import org.schabi.newpipe.extractor.stream.StreamInfoItem
 import org.schabi.newpipe.player.helper.PlayerHelper
+import org.schabi.newpipe.util.DeviceUtils
 import java.util.Arrays
 import java.util.concurrent.Executors
 import java.util.concurrent.Future
@@ -59,7 +60,10 @@ class AutoQueueController(private val player: Player) {
 
         if (!forceEnqueue && (playQueue.index != playQueue.size() - 1
                 || player.repeatMode != RepeatMode.OFF
-                || !PlayerHelper.isAutoQueueEnabled(context))) {
+                || !PlayerHelper.isAutoQueueEnabled(context)
+                // PipeTV: on TVs the next video comes after a countdown the user can cancel
+                // (TvUpNext), not appended to play right away
+                || DeviceUtils.isTv(context))) {
             return
         }
 
