@@ -23,7 +23,7 @@
         android:textColor="#E6FFFFFF"
         android:textSize="17sp" />
 
-    <androidx.recyclerview.widget.RecyclerView
+    <org.schabi.newpipe.views.TvRowList
         android:id="@+id/pipetvRowList"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

@@ -134,6 +134,12 @@ public final class FocusOverlayView extends Drawable implements
 
     @Override
     public void onGlobalFocusChanged(final View oldFocus, final View newFocus) {
+        // PipeTV: a list doesn't keep the focus itself, which put the ring around all of it. It
+        // takes it when its focused item scrolls away faster than it can hand the focus on, as
+        // with a key held down; the item nearest to the ring takes it over at once.
+        if (newFocus instanceof RecyclerView && focusItemNearRing((RecyclerView) newFocus)) {
+            return;
+        }
         if (newFocus != null) {
             focused = new WeakReference<>(newFocus);
         } else {
@@ -190,6 +196,37 @@ public final class FocusOverlayView extends Drawable implements
                 || t != focusRect.top || b != focusRect.bottom) {
             invalidateSelf();
         }
+    }
+
+    /**
+     * PipeTV: hands the focus a list took itself to its item nearest to the ring.
+     *
+     * @return false when no item on screen can take it
+     */
+    private boolean focusItemNearRing(@NonNull final RecyclerView list) {
+        final float x = shownRect.isEmpty() ? 0 : shownRect.centerX();
+        final float y = shownRect.isEmpty() ? 0 : shownRect.centerY();
+        final Rect itemRect = new Rect();
+        View nearest = null;
+        float nearestDistance = Float.MAX_VALUE;
+        for (int i = 0; i < list.getChildCount(); i++) {
+            final View item = list.getChildAt(i);
+            if (!item.hasFocusable() || !item.getGlobalVisibleRect(itemRect)) {
+                continue;
+            }
+            final float dx = itemRect.exactCenterX() - x;
+            final float dy = itemRect.exactCenterY() - y;
+            if (dx * dx + dy * dy < nearestDistance) {
+                nearestDistance = dx * dx + dy * dy;
+                nearest = item;
+            }
+        }
+        if (nearest == null) {
+            return false;
+        }
+        // Not from inside this focus change
+        list.post(nearest::requestFocus);
+        return true;
     }
 
     /**

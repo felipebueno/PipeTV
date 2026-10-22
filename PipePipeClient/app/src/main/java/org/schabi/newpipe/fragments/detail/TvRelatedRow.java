@@ -13,6 +13,7 @@ import org.schabi.newpipe.R;
 import org.schabi.newpipe.extractor.InfoItem;
 import org.schabi.newpipe.extractor.stream.StreamInfoItem;
 import org.schabi.newpipe.views.TvCardAdapter;
+import org.schabi.newpipe.views.TvRowList;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -50,6 +51,8 @@ final class TvRelatedRow {
         root = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.pipetv_related_row, parent, false);
         list = root.findViewById(R.id.pipetvRelatedList);
+        // Over the player there's nothing to the left of the row to go to
+        ((TvRowList) list).setLeftLeaves(false);
         list.setLayoutManager(new LinearLayoutManager(parent.getContext(),
                 LinearLayoutManager.HORIZONTAL, false));
         // The cards' stable ids would otherwise animate every change of the row
