@@ -41,4 +41,107 @@
     <string name="filter_search_mismatch">%d itens carregados não correspondem à sua pesquisa</string>
     <string name="add_to_filter_list">Adicionar canal à lista de bloqueio</string>
     <string name="add_to_filter_list_confirm">Adicionar \"%s\" à lista de bloqueio?</string>
+
+    <!-- The player, its gestures and its notification -->
+    <string name="seek_on_media_button_events_title">Avançar/retroceder em vez de anterior/próximo</string>
+    <string name="seek_on_media_button_events_summary">Mostrar botões de avançar/retroceder na notificação (Android 13+) e fazer as teclas anterior/próximo de dispositivos Bluetooth e fones de ouvido avançarem ou retrocederem em vez de pular faixas. O intervalo é o de “Procura em intervalos”, nas configurações de Gestos.</string>
+    <string name="minimize_gesture_control_title">Deslizar para baixo para minimizar</string>
+    <string name="minimize_gesture_control_summary">Deslize para baixo no reprodutor para recolhê-lo ao miniplayer: %s</string>
+    <string name="minimize_gesture_none_description">Desativado</string>
+    <string name="minimize_gesture_non_fullscreen_description">Só fora da tela cheia</string>
+    <string name="minimize_gesture_fullscreen_description">Dentro e fora da tela cheia (desativa os gestos de tela cheia e de velocidade de reprodução)</string>
+    <string name="pinch_to_zoom_gesture_control_title">Pinçar para ampliar</string>
+    <string name="pinch_to_zoom_gesture_control_summary">Pince para ampliar o vídeo em tela cheia. Com o vídeo ampliado, arraste para mover e toque duas vezes para voltar ao normal</string>
+    <string name="lock_screen_button_title">Botão de bloquear a tela</string>
+    <string name="lock_screen_button_summary">Mostrar um botão no reprodutor em tela cheia para bloquear os controles de toque</string>
+    <string name="player_lock">Bloquear a tela</string>
+    <string name="player_unlock">Desbloquear a tela</string>
+    <string name="preferred_audio_quality_title">Qualidade de áudio preferida</string>
+    <string name="audio_quality_high">Alta (maior taxa de bits)</string>
+    <string name="audio_quality_medium">Média (~128 kbps)</string>
+    <string name="audio_quality_low">Baixa (menor taxa de bits, economiza dados)</string>
+
+    <!-- Danmaku (bullet comments) and live chat -->
+    <string name="settings_category_bullet_comments_summary">Configurações do danmaku</string>
+    <string name="danmaku_settings_summary">Aparência do danmaku que rola sobre o vídeo, independente da exibição do chat</string>
+    <string name="regular_bullet_comments_duration_title">Duração do danmaku comum</string>
+    <string name="regular_bullet_comments_duration_summary">Mudar a duração do danmaku comum, que rola pela tela. Uma duração menor pode causar travamentos.</string>
+    <string name="top_bottom_bullet_comments_duration_title">Duração do danmaku do topo e da base</string>
+    <string name="top_bottom_bullet_comments_duration_summary">Mudar a duração do danmaku fixo no topo e na base.</string>
+    <string name="bullet_comments_outline_radius_title">Raio do contorno do danmaku</string>
+    <string name="bullet_comments_font_title">Fonte do danmaku</string>
+    <string name="bullet_comments_opacity_title">Opacidade do danmaku</string>
+    <string name="sort_bullet_comments">Danmaku</string>
+    <string name="enable_max_rows_customization_summary">Ativar para personalizar o máximo de linhas do danmaku</string>
+    <string name="max_bullet_comments_rows_top_summary">Máximo de linhas do danmaku do topo</string>
+    <string name="max_bullet_comments_rows_bottom_summary">Máximo de linhas do danmaku da base</string>
+    <string name="max_bullet_comments_rows_regular_summary">Máximo de linhas do danmaku comum</string>
+    <string name="bullet_comments_chat_mode_title">Mostrar o chat ao vivo e o danmaku como chat</string>
+    <string name="bullet_comments_chat_mode_summary">Ligado: num painel de chat (como no YouTube). Desligado: tudo como danmaku rolando sobre o vídeo (como no BiliBili e no NicoNico)</string>
+    <string name="chat_tab_description">Chat</string>
+    <string name="chat_anonymous">Anônimo</string>
+    <string name="chat_jump_to_latest">Ir para as mais recentes</string>
+    <string name="chat_empty">Nenhuma mensagem ainda</string>
+
+    <!-- DeArrow -->
+    <string name="dearrow_settings_summary">Títulos e miniaturas feitos pela comunidade para vídeos do YouTube. Toque para ativar e ajustar.</string>
+    <string name="dearrow_home_page_title">Ver o site</string>
+    <string name="dearrow_home_page_summary">Ver o site oficial do DeArrow.</string>
+    <string name="dearrow_enable_title">Ativar o DeArrow</string>
+    <string name="dearrow_enable_summary">Trocar títulos e miniaturas caça-cliques por outros feitos pela comunidade. Só no YouTube.</string>
+    <string name="dearrow_replace_titles_title">Substituir títulos</string>
+    <string name="dearrow_replace_titles_summary">Mostrar o título da comunidade em vez do título do canal.</string>
+    <string name="dearrow_replace_thumbnails_title">Substituir miniaturas</string>
+    <string name="dearrow_replace_thumbnails_summary">Mostrar um quadro real do vídeo em vez da miniatura do canal.</string>
+    <string name="dearrow_random_frame_title">Usar um quadro salvo como alternativa</string>
+    <string name="dearrow_random_frame_summary">Quando ninguém enviou uma miniatura, mostrar um quadro do próprio vídeo em vez da miniatura do canal. O de uma transmissão ao vivo ou de um vídeo recém-enviado é gerado pelo servidor do DeArrow. Custa o download de uma imagem pequena.</string>
+    <string name="dearrow_auto_format_title">Corrigir títulos EM MAIÚSCULAS</string>
+    <string name="dearrow_auto_format_summary">Converter títulos escritos todos em maiúsculas para a escrita normal. Siglas ficam como estão.</string>
+    <string name="dearrow_original_fallback_title">Manter a miniatura original</string>
+    <string name="dearrow_original_fallback_summary">Quando não houver um quadro para substituir, mostrar a miniatura do canal em vez de deixar um espaço vazio.</string>
+    <string name="dearrow_clear_cache_title">Limpar o cache do DeArrow</string>
+    <string name="dearrow_clear_cache_summary">Esquecer todos os títulos e miniaturas baixados e buscá-los de novo.</string>
+    <string name="dearrow_cache_cleared_toast">Cache do DeArrow limpo</string>
+
+    <!-- SponsorBlock segments entered by hand -->
+    <string name="sponsor_block_enter_start_time">Informar o início</string>
+    <string name="sponsor_block_enter_end_time">Informar o fim</string>
+    <string name="sponsor_block_time_input_hint">[[h:]m:]s, por exemplo 1:23:45.5</string>
+    <string name="sponsor_block_invalid_time_toast">Tempo inválido</string>
+
+    <!-- Lists: selecting, sorting and moving items, and their play buttons -->
+    <string name="multi_select">Seleção múltipla</string>
+    <string name="select_all">Selecionar tudo</string>
+    <string name="invert_selection">Inverter seleção</string>
+    <string name="selection_count">%d selecionados</string>
+    <string name="move_to_top">Mover para o topo</string>
+    <string name="move_to_bottom">Mover para o fim</string>
+    <string name="move_requires_original_order">Mude a ordenação para \"Original\" para mover itens</string>
+    <string name="sort_duration_ascending">Duração (crescente)</string>
+    <string name="sort_duration_descending">Duração (decrescente)</string>
+    <string name="sort_name_ascending">Nome (crescente)</string>
+    <string name="sort_name_descending">Nome (decrescente)</string>
+    <string name="name_sort_locale_title">Ordem dos nomes</string>
+    <string name="name_sort_locale_english">Inglês (sem diferenciar maiúsculas)</string>
+    <string name="name_sort_locale_chinese">Chinês (pinyin)</string>
+    <string name="name_sort_locale_japanese">Japonês</string>
+    <string name="name_sort_locale_korean">Coreano</string>
+    <string name="delete_selected_history_confirm">Remover %d itens do histórico?</string>
+    <string name="items_deleted">%d itens removidos.</string>
+    <string name="delete_selected_playlists_confirm">Remover %d playlists?</string>
+    <string name="remove_selected_from_playlist_confirm">Remover %d itens da playlist?</string>
+    <string name="list_control_pages_title">Botões de reprodução nas listas</string>
+    <string name="list_control_pages_summary">Páginas que mostram os botões de segundo plano, reproduzir todos e pop-up</string>
+    <string name="list_control_page_channel_videos_title">Vídeos do canal</string>
+    <string name="list_control_page_playlist_title">Playlists remotas</string>
+    <string name="list_control_page_local_playlist_title">Playlists locais</string>
+    <string name="list_control_pages_restart_toast">Reinicie o app para a mudança ter efeito</string>
+
+    <!-- Elsewhere -->
+    <string name="subscribe_to_channel">Inscrever-se no canal</string>
+    <string name="already_subscribed">Já inscrito</string>
+    <string name="search_in_page">Pesquisar na página</string>
+    <string name="add_to_home_screen">Adicionar à tela inicial</string>
+    <string name="playlist_no_longer_exists">Esta playlist não existe mais</string>
+    <string name="webview_unavailable_youtube_hint">Erro no WebView. Tente de novo.\n\nSe o problema continuar, informe no nosso GitHub.</string>
 </resources>
