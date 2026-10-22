@@ -8,6 +8,28 @@ is built and published on [GitHub Releases](https://github.com/felipebueno/PipeT
 as `PipeTV <version> (build <n>)`, with its version's section below as the
 release's "what's new".
 
+## [0.7.1] - 2026-10-21
+
+### Changed
+
+- The first update asks, in PipeTV, for Android's permission to install apps,
+  and goes on by itself once you come back from that setting. On some TVs,
+  coming back from Android's own prompt cancelled the install.
+
+### Fixed
+
+- On TVs a video's picture no longer starts behind its sound. The player went
+  fullscreen once the video had started, which rebuilt the video decoder in
+  the middle of the start: the sound could play over a black screen and stay
+  ahead of the picture. It's fullscreen before the video starts now, which also
+  starts it sooner.
+
+### Removed
+
+- The LXGW WenKai Screen font of bullet comments, a third of the APK: each
+  download and update is about 10 MB smaller. Bullet comments use the system's
+  font, which covers Chinese and Japanese too.
+
 ## [0.7.0] - 2026-10-21
 
 ### Added
