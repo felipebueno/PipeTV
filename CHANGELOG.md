@@ -8,6 +8,20 @@ is built and published on [GitHub Releases](https://github.com/felipebueno/PipeT
 as `PipeTV <version> (build <n>)`, with its version's section below as the
 release's "what's new".
 
+## [0.8.2] - 2026-10-22
+
+### Changed
+
+- On TVs, shorts and paid videos are hidden by default: shorts are vertical
+  videos made for phones, and paid or members-only videos need an account
+  PipeTV can't sign in to yet. TVs that already have PipeTV get both filters
+  turned on once; Settings, Content Filter turns them off.
+
+### Fixed
+
+- The content filter settings and their lists are in Portuguese (Brazil): 26
+  of their texts were still in English.
+
 ## [0.8.1] - 2026-10-22
 
 ### Changed
