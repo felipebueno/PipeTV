@@ -103,7 +103,9 @@ android {
                 resValue "string", "app_name", "PipeTV"
             }
             minifyEnabled true
-            shrinkResources false // disabled to fix F-Droid's reproducible build
+            // PipeTV: unused resources go too; PipePipe kept them for F-Droid's reproducible
+            // builds, and PipeTV publishes its own
+            shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             buildConfigField "String", "PIPETV_CHANNEL", '"prod"'
         }
