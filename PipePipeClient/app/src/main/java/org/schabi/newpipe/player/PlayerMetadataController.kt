@@ -82,6 +82,10 @@ class PlayerMetadataController(private val player: Player) {
                 if (previousInfo == null || previousInfo.url != info.url) {
                     // only update with the new stream info if it has actually changed
                     updateMetadataWith(info)
+                } else {
+                    // PipeTV: the same video reloaded, as for another quality. The quality
+                    // label follows the new stream, also while paused, when no onPlaying would.
+                    player.layoutController.updateStreamRelatedViews()
                 }
             }
         }
