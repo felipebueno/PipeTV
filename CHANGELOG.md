@@ -8,6 +8,15 @@ is built and published on [GitHub Releases](https://github.com/felipebueno/PipeT
 as `PipeTV <version> (build <n>)`, with its version's section below as the
 release's "what's new".
 
+## [0.8.1] - 2026-10-22
+
+### Changed
+
+- On TVs PipeTV also looks for updates when you close a video, at most once an
+  hour, so a TV that stays on PipeTV all evening still gets the update at the
+  top of the home. It used to look only when PipeTV opened or you came back to
+  it from another app.
+
 ## [0.8.0] - 2026-10-22
 
 ### Added
