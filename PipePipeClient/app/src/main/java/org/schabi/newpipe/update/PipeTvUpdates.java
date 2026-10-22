@@ -36,9 +36,10 @@ import okhttp3.Response;
 import okhttp3.ResponseBody;
 
 /**
- * PipeTV: finds newer builds of PipeTV on its GitHub releases. Release builds look for them
- * every hour, unless the settings say not to; the TV home offers them, and phones get a
- * notification. Development builds, with other app ids, can't install release builds over them.
+ * PipeTV: finds newer builds of PipeTV on its GitHub releases. Release builds look for them at
+ * most once an hour, when the app opens or comes back and, on TVs, when a video is closed,
+ * unless the settings say not to; the TV home offers them, and phones get a notification.
+ * Development builds, with other app ids, can't install release builds over them.
  */
 public final class PipeTvUpdates {
     private static final String TAG = "PipeTvUpdates";
@@ -112,7 +113,7 @@ public final class PipeTvUpdates {
 
     /**
      * Brings back the newer build found before, and looks for one again when it's time. For
-     * the app's start and return to the screen.
+     * the app's start and return to the screen, and the closing of a video on TVs.
      */
     public static void checkWhenDue(@NonNull final Context context) {
         if (!isSupported()) {
@@ -150,7 +151,13 @@ public final class PipeTvUpdates {
                             .putString(PREF_RELEASE, json)
                             .putLong(PREF_CHECKED_AT, System.currentTimeMillis())
                             .apply();
-                    return publish(app, json);
+                    final Optional<PipeTvRelease> newer = publish(app, json);
+                    // In logcat, for when an update doesn't show up
+                    Log.i(TAG, newer.map(release -> "Checked for updates: build "
+                            + release.build + " is newer than build " + installedBuild())
+                            .orElse("Checked for updates: build " + installedBuild()
+                                    + " is the latest"));
+                    return newer;
                 });
     }
 

@@ -110,6 +110,7 @@ import org.schabi.newpipe.player.mediaitem.PlayerMediaItem;
 import org.schabi.newpipe.player.playqueue.PlayQueue;
 import org.schabi.newpipe.player.playqueue.SinglePlayQueue;
 import org.schabi.newpipe.sleep.SleepTimerService;
+import org.schabi.newpipe.update.PipeTvUpdates;
 import org.schabi.newpipe.util.*;
 import org.schabi.newpipe.util.dearrow.DeArrowBinder;
 import org.schabi.newpipe.util.dearrow.DeArrowRow;
@@ -2985,6 +2986,11 @@ public final class VideoDetailFragment
                             bottomSheetBehavior.setPeekHeight(0);
                             cleanUp();
                             applyOverlayForState(newState);
+                            // PipeTV: a TV may stay on PipeTV all evening, never leaving it and
+                            // coming back, so updates are also looked for, when due, after a video
+                            if (DeviceUtils.isTv(activity)) {
+                                PipeTvUpdates.checkWhenDue(activity);
+                            }
                             break;
                         case BottomSheetBehavior.STATE_EXPANDED:
                             moveFocusToMainFragment(false);

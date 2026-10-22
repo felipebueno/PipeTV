@@ -94,8 +94,9 @@ or newer.
    - On a USB drive, opened with a file manager on the TV
 3. When the TV asks, allow that app to install unknown apps.
 
-After that, PipeTV looks for new versions every hour and offers them at the
-top of its home: choose Update, confirm in Android's installer, then Open.
+After that, PipeTV looks for new versions as you use it, at most once an hour,
+and offers them at the top of its home: choose Update, confirm in Android's
+installer, then Open.
 Your history and subscriptions stay as they are. PipeTV installs next to
 YouTube and PipePipe, without replacing them.
 
