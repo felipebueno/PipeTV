@@ -31,7 +31,8 @@ always know where you are.
 
 **Straight to the video.** Choose a video and it plays fullscreen right away,
 with no page in between. Press Down while it plays and the related videos come
-up over it, as in YouTube's own TV app. Back takes you to where you were.
+up over it, as in YouTube's own TV app. When it ends, the next one starts after
+a 10-second countdown you can cancel. Back takes you to where you were.
 
 **A home of rows.** It opens on what you watched recently, more like the last
 of it, what's live and what's new from your subscriptions.
@@ -108,6 +109,7 @@ YouTube and PipePipe, without replacing them.
 | Home | Back | The side rail opens, and Back again leaves |
 | Player | Left, Right | Seek right away; hold to keep seeking |
 | Player | Down | The related videos come up: OK plays one, Up or Back hides them |
+| Player, when a video ends | OK, or Back | The next video plays now, or the countdown stops |
 | Player | Back | The player closes, and you're back on the video you chose |
 | Search | Back, then Down | The keyboard closes, and Down goes to the suggestions or results |
 
