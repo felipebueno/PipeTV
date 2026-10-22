@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- PipeTV: pt-BR for PipePipe's strings (values/strings.xml) that upstream hasn't translated
+     yet. When upstream's translation of one arrives, the build fails on the duplicate: delete
+     PipeTV's here. -->
+<resources>
+    <!-- The content filter (xml/filter_settings.xml) and its lists (BaseFilterListActivity) -->
+    <string name="video_filtering">Filtro de vídeos</string>
+    <string name="filter_by_keyword_title">Palavras-chave bloqueadas</string>
+    <string name="filter_by_keyword_summary">Ocultar vídeos e outros itens com alguma destas palavras-chave no título. Coloque uma entrada entre barras (/…/) para usar uma expressão regular</string>
+    <string name="filter_by_channel_title">Canais bloqueados</string>
+    <string name="filter_by_channel_summary">Ocultar vídeos, playlists e canais destes canais</string>
+    <string name="filter_by_channel_id_title">IDs de canais bloqueados</string>
+    <string name="filter_by_channel_id_summary">Ocultar vídeos de canais com estes IDs</string>
+    <string name="filter_shorts_summary">Ocultar vídeos curtos dos resultados. Só no YouTube.</string>
+    <string name="filter_paid_contents_title">Filtrar conteúdo pago</string>
+    <string name="filter_paid_contents_summary">Ocultar dos resultados vídeos pagos e exclusivos para membros</string>
+    <string name="filter_future_items_title">Filtrar itens agendados</string>
+    <string name="filter_future_items_summary">Ocultar itens com lançamento agendado, como estreias</string>
+    <string name="filter_field_summary">Aplicar filtros em</string>
+    <string name="comment_filtering">Filtro de comentários</string>
+    <string name="comment_filter_by_keyword_summary">Ocultar comentários com alguma destas palavras-chave. Coloque uma entrada entre barras (/…/) para usar uma expressão regular</string>
+    <string name="filter_by_username_title">Nomes de usuário bloqueados</string>
+    <string name="comment_filter_by_username_summary">Ocultar comentários destes usuários</string>
+    <string name="comment_filter_by_user_id_summary">Ocultar comentários de usuários com estes IDs de canal</string>
+    <string name="comment_filter_min_likes_title">Mínimo de curtidas</string>
+    <string name="comment_filter_min_likes_summary">Mostrar só comentários com pelo menos esta quantidade de curtidas. 0 desativa o filtro. Comentários fixados sempre aparecem</string>
+    <string name="add_filter">Adicionar filtro</string>
+    <string name="no_filters">Nenhum filtro ainda</string>
+    <string name="delete_filter_confirm">Remover \"%s\" da lista de filtros?</string>
+    <string name="filter_keyword_regex_hint">Palavra-chave ou /regex/</string>
+    <string name="filter_keyword_regex_invalid">Expressão regular inválida: %s</string>
+    <string name="filter_id_invalid_format">Formato inválido. Use NomeDoServiço:ID, por exemplo YouTube:UCxxxxxxxxxxxxxxxxxxxxxx, BiliBili:12345 ou NicoNico:12345</string>
+</resources>
