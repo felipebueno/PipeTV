@@ -20,6 +20,8 @@ import org.schabi.newpipe.extractor.stream.VideoStream
 import org.schabi.newpipe.player.helper.PlaybackParameterDialog
 import org.schabi.newpipe.player.helper.PlayerHelper
 import org.schabi.newpipe.player.mediaitem.MediaItemQuality
+import org.schabi.newpipe.util.DeviceUtils
+import org.schabi.newpipe.util.VideoStreamSelector
 import java.util.Locale
 
 /**
@@ -450,6 +452,16 @@ class PlayerMenuController(
             player.setRecovery()
             player.setSelectedStream(availableStreams[menuItemIndex])
             player.reloadPlayQueueManager()
+            // PipeTV: on TVs the next videos take this quality too, or the closest lower one
+            // they have. Back closes the player there, and a new player forgot the choice.
+            if (DeviceUtils.isTv(player.context)) {
+                player.prefs.edit().putString(
+                    player.context.getString(R.string.default_resolution_key),
+                    VideoStreamSelector.defaultResolutionOf(
+                        availableStreams[menuItemIndex].resolution
+                    )
+                ).apply()
+            }
 
             player.binding.qualityTextView.text = menuItem.title
             return true

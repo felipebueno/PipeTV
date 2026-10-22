@@ -182,6 +182,15 @@ public final class VideoStreamSelector {
     }
 
     /**
+     * PipeTV: the default resolution setting's value for a stream's resolution, e.g. 1080p for
+     * 1080p60 HDR.
+     */
+    @NonNull
+    public static String defaultResolutionOf(@NonNull final String resolution) {
+        return normalizeResolutionKey(resolution);
+    }
+
+    /**
      * Removes resolution labels while preserving the frame rate variant.
      * For example, 1080p HDR becomes 1080p while 1080p60 HDR becomes 1080p60.
      */
