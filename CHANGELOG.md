@@ -8,6 +8,15 @@ is built and published on [GitHub Releases](https://github.com/felipebueno/PipeT
 as `PipeTV <version> (build <n>)`, with its version's section below as the
 release's "what's new".
 
+## [0.8.3] - 2026-10-22
+
+### Fixed
+
+- The rest of the content filter is in Portuguese (Brazil) too: the minimum
+  likes summary, the note at the end of a list on what the filters hid, and
+  "Add channel to block list" in a video's menu. With shorts and paid videos
+  filtered by default, that note shows up more often.
+
 ## [0.8.2] - 2026-10-22
 
 ### Changed
