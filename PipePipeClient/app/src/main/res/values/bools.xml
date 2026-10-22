@@ -3,4 +3,6 @@
     <bool name="leak_canary_add_launcher_icon">false</bool>
     <!-- PipeTV: videos open in fullscreen on TVs (values-television), not on phones. -->
     <bool name="start_main_player_fullscreen_default">false</bool>
+    <!-- PipeTV: media tunneling is off by default on TVs (values-television), not on phones. -->
+    <bool name="disable_media_tunneling_default">false</bool>
 </resources>

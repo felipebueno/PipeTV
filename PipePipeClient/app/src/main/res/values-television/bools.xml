@@ -2,4 +2,8 @@
 <resources>
     <!-- PipeTV: on a TV a video opens straight in fullscreen. -->
     <bool name="start_main_player_fullscreen_default">true</bool>
+    <!-- PipeTV: no media tunneling by default on a TV. Tunneled playback leaves A/V sync to the
+         hardware, and on Amlogic sticks (Mi TV Stick) it stalled after seeks, as SponsorBlock's
+         skips, with the sound paused while the picture waited. -->
+    <bool name="disable_media_tunneling_default">true</bool>
 </resources>

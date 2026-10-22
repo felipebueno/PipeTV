@@ -14,7 +14,7 @@
         app:iconSpaceReserved="false" />
 
     <SwitchPreferenceCompat
-        android:defaultValue="false"
+        android:defaultValue="@bool/disable_media_tunneling_default"
         android:key="@string/disable_media_tunneling_key"
         android:summary="@string/disable_media_tunneling_summary"
         android:title="@string/disable_media_tunneling_title"

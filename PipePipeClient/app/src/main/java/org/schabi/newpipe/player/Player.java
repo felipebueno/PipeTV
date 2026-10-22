@@ -358,8 +358,11 @@ public final class Player {
         surfaceController.setupVideoSurface();
 
         // enable media tunneling
+        // PipeTV: disabled by default on TVs (values-television), see the default's comment
         if (PreferenceManager.getDefaultSharedPreferences(context)
-                .getBoolean(context.getString(R.string.disable_media_tunneling_key), false)) {
+                .getBoolean(context.getString(R.string.disable_media_tunneling_key),
+                        context.getResources().getBoolean(
+                                R.bool.disable_media_tunneling_default))) {
             Log.d(TAG, "[" + Util.DEVICE_DEBUG_INFO + "] "
                     + "media tunneling disabled by user preference");
         } else if (DeviceUtils.shouldSupportMediaTunneling()) {
