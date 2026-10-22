@@ -91,17 +91,50 @@ public final class PipeTvUpdateDialog {
                             update.requestFocus();
                             later.setText(R.string.pipetv_update_later);
                         }, () -> {
-                            dialog.dismiss();
-                            try {
-                                PipeTvUpdateInstaller.install(activity, release);
-                            } catch (final ActivityNotFoundException e) {
-                                Toast.makeText(activity, R.string.pipetv_update_no_installer,
-                                        Toast.LENGTH_LONG).show();
+                            if (PipeTvUpdateInstaller.canInstall(activity)) {
+                                install(activity, dialog, release);
+                                return;
                             }
+                            // Android asks once to let PipeTV install apps: back from that
+                            // setting, the dialog gets the focus again and the update goes on
+                            progress.setVisibility(View.GONE);
+                            status.setText(R.string.pipetv_update_allow_explained);
+                            update.setText(R.string.pipetv_update_allow);
+                            update.setVisibility(View.VISIBLE);
+                            update.requestFocus();
+                            later.setText(R.string.pipetv_update_later);
+                            update.setOnClickListener(allow -> {
+                                try {
+                                    PipeTvUpdateInstaller.openInstallPermission(activity);
+                                } catch (final ActivityNotFoundException e) {
+                                    // Android's installer asks for it then
+                                    install(activity, dialog, release);
+                                }
+                            });
+                            dialog.getWindow().getDecorView().getViewTreeObserver()
+                                    .addOnWindowFocusChangeListener(hasFocus -> {
+                                        if (hasFocus && dialog.isShowing()
+                                                && PipeTvUpdateInstaller.canInstall(activity)) {
+                                            install(activity, dialog, release);
+                                        }
+                                    });
                         }));
             });
         });
         dialog.show();
+    }
+
+    /** Hands the downloaded build to Android's installer, which takes over. */
+    private static void install(@NonNull final Activity activity,
+                                @NonNull final AlertDialog dialog,
+                                @NonNull final PipeTvRelease release) {
+        dialog.dismiss();
+        try {
+            PipeTvUpdateInstaller.install(activity, release);
+        } catch (final ActivityNotFoundException e) {
+            Toast.makeText(activity, R.string.pipetv_update_no_installer, Toast.LENGTH_LONG)
+                    .show();
+        }
     }
 
     @NonNull

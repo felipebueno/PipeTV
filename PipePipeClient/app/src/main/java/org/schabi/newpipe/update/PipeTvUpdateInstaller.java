@@ -5,7 +5,9 @@ import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Build;
 import android.os.SystemClock;
+import android.provider.Settings;
 
 import androidx.annotation.NonNull;
 import androidx.core.content.FileProvider;
@@ -111,6 +113,22 @@ public final class PipeTvUpdateInstaller {
                 emitter.tryOnError(e);
             }
         }).subscribeOn(Schedulers.io());
+    }
+
+    /** Whether Android lets PipeTV install apps, which it asks the user once for. */
+    public static boolean canInstall(@NonNull final Context context) {
+        return Build.VERSION.SDK_INT < Build.VERSION_CODES.O
+                || context.getPackageManager().canRequestPackageInstalls();
+    }
+
+    /**
+     * Opens Android's setting that lets PipeTV install apps. Android's installer would ask for
+     * it too, but some TVs cancel the install when the user comes back from that setting.
+     */
+    public static void openInstallPermission(@NonNull final Activity activity)
+            throws ActivityNotFoundException {
+        activity.startActivity(new Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES,
+                Uri.parse("package:" + activity.getPackageName())));
     }
 
     /** Opens Android's installer on the downloaded build. */

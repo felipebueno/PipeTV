@@ -14,6 +14,8 @@
     <string name="pipetv_update_downloading">Baixando: %1$s de %2$s</string>
     <string name="pipetv_update_failed">Não foi possível baixar a atualização (%1$s).</string>
     <string name="pipetv_update_retry">Tentar de novo</string>
+    <string name="pipetv_update_allow">Permitir</string>
+    <string name="pipetv_update_allow_explained">Baixado. O Android pede uma vez para deixar o PipeTV instalar suas atualizações: ative o PipeTV na próxima tela e volte.</string>
     <string name="pipetv_update_no_installer">Este aparelho não tem um instalador de apps para a atualização</string>
     <string name="pipetv_update_up_to_date">O PipeTV está atualizado</string>
     <string name="pipetv_update_check_failed">Não foi possível procurar atualizações</string>
