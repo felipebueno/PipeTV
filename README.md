@@ -47,9 +47,9 @@ playlists stay on your TV, and SponsorBlock skips sponsored segments.
 see what's new, and PipeTV downloads it, checks it and hands it to Android's
 installer.
 
-**Yours to tune.** Hide shorts, paid and upcoming videos, filter out keywords
-or channels, choose how far Left and Right seek, or turn on DeArrow for
-crowdsourced titles and thumbnails.
+**Yours to tune.** Shorts, paid and upcoming videos stay hidden unless you want
+them. Filter out keywords or channels, choose how far Left and Right seek, or
+turn on DeArrow for crowdsourced titles and thumbnails.
 
 ## Screenshots
 

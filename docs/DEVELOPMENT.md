@@ -8,6 +8,17 @@ repositories. PipeTV's own changes are marked `PipeTV:` in the code, which keeps
 bringing upstream changes over easy. Most of them only apply on TVs
 (`DeviceUtils.isTv`), so phones keep PipePipe's behavior.
 
+TV defaults live in `res/values-television/bools.xml`, used both as a
+setting's `defaultValue` and as its default where the code reads it. A new
+default only reaches new installs, since settings are stored on the first run
+or once their screen is shown; `settings/PipeTvSettingsMigrations` applies one
+to existing TVs, once.
+
+PipeTV's own strings are in `strings_pipetv.xml`. Its pt-BR translations of
+PipePipe strings that upstream hasn't translated yet are in
+`res/values-pt-rBR/strings_pipetv_upstream.xml`: when upstream's translation
+of one arrives, the build fails on the duplicate, and PipeTV's goes.
+
 ## Building
 
 The code targets Java 25.
@@ -72,7 +83,7 @@ PIPETV_BUILD_NUMBER=400 ./gradlew assembleRelease   # with the KEY_* variables s
 ```
 
 The TV home then offers the latest release at its top; Settings, Updates checks
-on demand.
+on demand. Each check writes its result to logcat (`adb logcat -s PipeTvUpdates`).
 
 ## README screenshots
 
