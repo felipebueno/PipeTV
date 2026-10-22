@@ -24,10 +24,21 @@
     <string name="comment_filter_by_user_id_summary">Ocultar comentários de usuários com estes IDs de canal</string>
     <string name="comment_filter_min_likes_title">Mínimo de curtidas</string>
     <string name="comment_filter_min_likes_summary">Mostrar só comentários com pelo menos esta quantidade de curtidas. 0 desativa o filtro. Comentários fixados sempre aparecem</string>
+    <string name="comment_filter_min_likes_current">Mostrar só comentários com pelo menos %d curtidas. Comentários fixados sempre aparecem</string>
     <string name="add_filter">Adicionar filtro</string>
     <string name="no_filters">Nenhum filtro ainda</string>
     <string name="delete_filter_confirm">Remover \"%s\" da lista de filtros?</string>
     <string name="filter_keyword_regex_hint">Palavra-chave ou /regex/</string>
     <string name="filter_keyword_regex_invalid">Expressão regular inválida: %s</string>
     <string name="filter_id_invalid_format">Formato inválido. Use NomeDoServiço:ID, por exemplo YouTube:UCxxxxxxxxxxxxxxxxxxxxxx, BiliBili:12345 ou NicoNico:12345</string>
+
+    <!-- What the filters hid, at the end of a list (fragments/list/BaseListFragment), and the
+         block entry of a video's menu (info_list/dialog/StreamDialogDefaultEntry) -->
+    <string name="filter_items_hidden">Ocultos pelos seus filtros: %d itens</string>
+    <string name="filter_all_items_hidden">Todos os itens carregados foram ocultos pelos seus filtros (%d itens)</string>
+    <string name="filter_no_visible_items_yet">Nenhum item visível nas páginas carregadas. Há mais páginas disponíveis</string>
+    <string name="filter_continue_loading">Continuar carregando</string>
+    <string name="filter_search_mismatch">%d itens carregados não correspondem à sua pesquisa</string>
+    <string name="add_to_filter_list">Adicionar canal à lista de bloqueio</string>
+    <string name="add_to_filter_list_confirm">Adicionar \"%s\" à lista de bloqueio?</string>
 </resources>
