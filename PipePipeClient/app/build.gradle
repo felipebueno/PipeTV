@@ -23,7 +23,7 @@ def pipetvUncommitted = !providers.exec {
     ignoreExitValue = true
 }.standardOutput.asText.get().trim().isEmpty()
 // PipeTV's own version, moved by hand along with CHANGELOG.md. It is based on PipePipe 5.5.0.
-def appVersionName = "0.8.3"
+def appVersionName = "0.8.4"
 // PipeTV: each build's version code is higher than the one before it and than PipePipe's own
 // (1110), so a newer build always installs over an older one
 def baseVersionCode = 2000 + (pipetvCommitCount.isInteger() ? pipetvCommitCount.toInteger() : 0)

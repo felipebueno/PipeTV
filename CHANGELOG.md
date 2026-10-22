@@ -8,6 +8,20 @@ is built and published on [GitHub Releases](https://github.com/felipebueno/PipeT
 as `PipeTV <version> (build <n>)`, with its version's section below as the
 release's "what's new".
 
+## [0.8.4] - 2026-10-22
+
+### Changed
+
+- The APKs are about 2.4 MB smaller (armeabi-v7a: from 21.4 MB to 19 MB).
+  PipeTV no longer carries BouncyCastle, a cryptography library nothing used,
+  whose post-quantum tables alone took 1.2 MB, and the build leaves out the
+  resources nothing uses.
+
+### Fixed
+
+- PipeTV is all in Portuguese (Brazil) now: the last 91 texts still in English,
+  in DeArrow, danmaku, the player and the lists among others, are translated.
+
 ## [0.8.3] - 2026-10-22
 
 ### Fixed
