@@ -142,7 +142,11 @@ class PlayerUiModeController(private val player: Player) {
             // Entering fullscreen can rotate the screen, and rotating while the current item is
             // still being resolved recreates the detail fragment in the middle of the start and
             // tears the playback down: the request has to wait for the item to be prepared.
-            && player.isPrepared
+            // PipeTV: a TV doesn't rotate, and waiting there moved the player to its fullscreen
+            // parent once the decoders ran, which recreated the video surface and decoder in
+            // the middle of the start: slower, and with tunneling the sound could get ahead of
+            // the picture. A TV enters fullscreen before the video starts.
+            && (player.isPrepared || DeviceUtils.isTv(player.context))
 
     /**
      * This will be called when the screen orientation changed on its own. The transition follows
