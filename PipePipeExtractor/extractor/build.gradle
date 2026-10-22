@@ -19,7 +19,8 @@ dependencies {
     implementation "com.squareup.okhttp3:okhttp:5.4.0"
     implementation "org.brotli:dec:0.1.2"
     implementation 'org.apache.commons:commons-lang3:3.20.0'
-    implementation 'org.bouncycastle:bcprov-jdk18on:1.85'
+    // PipeTV: no BouncyCastle, which nothing uses: its post-quantum tables alone took 1.2 MB of
+    // the APK, data files R8 can't strip. Every digest, HMAC and cipher here is Android's own.
     compileOnly "org.json:json:20260522"
     testImplementation 'org.junit.jupiter:junit-jupiter:5.13.4'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher:1.13.4'
