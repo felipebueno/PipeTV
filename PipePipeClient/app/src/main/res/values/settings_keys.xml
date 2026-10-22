@@ -1462,7 +1462,7 @@
         <item>sans-serif</item>
         <item>serif</item>
         <item>monospace</item>
-        <item>LXGW WenKai Screen</item>
+        <!-- PipeTV: no LXGW WenKai Screen, a third of the APK -->
     </string-array>
 
     <!-- ExoPlayer settings -->

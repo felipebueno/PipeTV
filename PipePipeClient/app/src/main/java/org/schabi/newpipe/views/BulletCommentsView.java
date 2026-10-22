@@ -20,7 +20,6 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
-import androidx.core.content.res.ResourcesCompat;
 import androidx.preference.PreferenceManager;
 import org.schabi.newpipe.R;
 import org.schabi.newpipe.databinding.BulletCommentsPlayerBinding;
@@ -82,7 +81,9 @@ public final class BulletCommentsView extends ConstraintLayout {
             maxRowsRegular = prefs.getInt(context.getString(R.string.max_bullet_comments_rows_bottom_key), 15);
         }
 
-        font = prefs.getString("bullet_comments_font_key", "LXGW WenKai Screen");
+        // PipeTV: the system's font by default; PipeTV has no LXGW WenKai Screen, a third of
+        // its APK, and a choice of it falls back to the system's font too
+        font = prefs.getString("bullet_comments_font_key", "Default");
         opacity = prefs.getInt("bullet_comments_opacity_key", 0xFF);
         //Not this: BulletCommentsPlayerBinding.inflate(LayoutInflater.from(context));
         binding = BulletCommentsPlayerBinding.bind(this);
@@ -287,9 +288,6 @@ public final class BulletCommentsView extends ConstraintLayout {
                     break;
                 case "sans-serif":
                     fontToBeUsed = Typeface.SANS_SERIF;
-                    break;
-                case "LXGW WenKai Screen":
-                    fontToBeUsed = ResourcesCompat.getFont(context, R.font.lxgw_wenkai);
                     break;
                 default:
                     fontToBeUsed = Typeface.DEFAULT;
