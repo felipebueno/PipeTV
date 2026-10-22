@@ -8,6 +8,39 @@ is built and published on [GitHub Releases](https://github.com/felipebueno/PipeT
 as `PipeTV <version> (build <n>)`, with its version's section below as the
 release's "what's new".
 
+## [0.8.0] - 2026-10-22
+
+### Added
+
+- Autoplay on TVs. When a video ends, a card in the corner shows the related
+  video that comes next and plays it in 10 seconds: OK on "Play now" plays it
+  at once, and Cancel or Back stay on the video that ended. It's on in new
+  installs, and "Autoplay the next video", in Settings, Player, turns it on or
+  off.
+- On TVs the quality you choose in the player sticks: the next videos play at
+  that quality, or at the closest lower one they have. It's also the "Default
+  resolution" in Settings, Player.
+
+### Changed
+
+- On TVs autoplay covers videos of any length, so the setting that skipped long
+  videos is hidden there.
+
+### Fixed
+
+- On TVs such as the Mi TV Stick, videos no longer freeze after a SponsorBlock
+  skip or any other jump. Media tunneling, where the TV's chip keeps the
+  picture and the sound in step by itself, could stall after a jump with plenty
+  of video loaded. It's off by default on TVs now. If a video still freezes
+  after a skip, turn on "Disable media tunneling" in Settings, Advanced,
+  ExoPlayer settings.
+- In long lists, holding Down no longer makes the focus jump around or land on
+  the whole list: it stays on the video nearest to where it was.
+- Right at the end of a row no longer jumps to another row, which left the row
+  scrolled to its end with its first videos out of sight.
+- The quality label shows the quality you picked, also while the video is
+  paused.
+
 ## [0.7.1] - 2026-10-21
 
 ### Changed
