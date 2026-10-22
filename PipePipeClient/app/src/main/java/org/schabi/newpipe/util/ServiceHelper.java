@@ -344,8 +344,11 @@ public final class ServiceHelper {
             new ArrayList<>(sharedPreferences.getStringSet(context.getString(R.string.filter_by_keyword_key) + "_set", new HashSet<>())),
             new ArrayList<>(sharedPreferences.getStringSet(context.getString(R.string.filter_by_channel_key) + "_set", new HashSet<>())),
             new ArrayList<>(sharedPreferences.getStringSet(context.getString(R.string.filter_by_channel_id_key) + "_set", new HashSet<>())),
-            sharedPreferences.getBoolean(context.getString(R.string.filter_shorts_key), false),
-            sharedPreferences.getBoolean(context.getString(R.string.filter_paid_contents_key), false)
+            // PipeTV: both on by default on TVs (values-television)
+            sharedPreferences.getBoolean(context.getString(R.string.filter_shorts_key),
+                    context.getResources().getBoolean(R.bool.filter_shorts_default)),
+            sharedPreferences.getBoolean(context.getString(R.string.filter_paid_contents_key),
+                    context.getResources().getBoolean(R.bool.filter_paid_contents_default))
         );
 
         final CommentsFilterConfig commentsFilterConfig = new CommentsFilterConfig(

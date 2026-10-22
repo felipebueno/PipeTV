@@ -63,6 +63,7 @@ public final class NewPipeSettings {
         // first run migrations, then setDefaultValues, since the latter requires the correct types
         SettingMigrations.initMigrations(context, isFirstRun);
         PipePipeMigrations.initMigrations(context, isFirstRun);
+        PipeTvSettingsMigrations.run(context, isFirstRun);
 
         final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
         final String rotationFullscreenKey = context.getString(

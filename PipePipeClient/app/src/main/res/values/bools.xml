@@ -7,4 +7,7 @@
     <bool name="disable_media_tunneling_default">false</bool>
     <!-- PipeTV: autoplay of the next video is on by default on TVs (values-television). -->
     <bool name="auto_queue_default">false</bool>
+    <!-- PipeTV: shorts and paid videos are filtered by default on TVs (values-television). -->
+    <bool name="filter_shorts_default">false</bool>
+    <bool name="filter_paid_contents_default">false</bool>
 </resources>

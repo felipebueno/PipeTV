@@ -9,4 +9,9 @@
     <!-- PipeTV: a TV plays the next related video after a countdown it can be cancelled in
          (fragments/detail/TvUpNext), as the TV apps of the big video sites do. -->
     <bool name="auto_queue_default">true</bool>
+    <!-- PipeTV: no shorts on a TV, which are vertical videos made for phones, and no paid or
+         members-only videos, which need an account PipeTV can't sign in to yet. Existing TVs
+         get them once (settings/PipeTvSettingsMigrations). -->
+    <bool name="filter_shorts_default">true</bool>
+    <bool name="filter_paid_contents_default">true</bool>
 </resources>
